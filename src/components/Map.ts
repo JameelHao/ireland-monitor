@@ -63,7 +63,8 @@ import type { CountryClickPayload } from './DeckGLMap';
 import { t } from '@/services/i18n';
 
 export type TimeRange = '1h' | '6h' | '24h' | '48h' | '7d' | 'all';
-export type MapView = 'global' | 'america' | 'mena' | 'eu' | 'asia' | 'latam' | 'africa' | 'oceania';
+// 爱尔兰本地化视图类型
+export type MapView = 'ireland' | 'dublin' | 'cork' | 'galway' | 'global';
 
 interface MapState {
   zoom: number;
@@ -3323,15 +3324,13 @@ export class MapComponent {
 
     // Region-specific zoom and pan settings
     // Pan: +x = west, -x = east, +y = north, -y = south
+    // 爱尔兰本地化视图设置
     const viewSettings: Record<MapView, { zoom: number; pan: { x: number; y: number } }> = {
-      global: { zoom: 1, pan: { x: 0, y: 0 } },
-      america: { zoom: 1.8, pan: { x: 180, y: 30 } },
-      mena: { zoom: 3.5, pan: { x: -100, y: 50 } },
-      eu: { zoom: 2.4, pan: { x: -30, y: 100 } },
-      asia: { zoom: 2.0, pan: { x: -320, y: 40 } },
-      latam: { zoom: 2.0, pan: { x: 120, y: -100 } },
-      africa: { zoom: 2.2, pan: { x: -40, y: -30 } },
-      oceania: { zoom: 2.2, pan: { x: -420, y: -100 } },
+      ireland: { zoom: 4.0, pan: { x: 20, y: 120 } },   // 爱尔兰全景
+      dublin:  { zoom: 6.0, pan: { x: 20, y: 120 } },   // 都柏林
+      cork:    { zoom: 6.0, pan: { x: 30, y: 110 } },   // 科克
+      galway:  { zoom: 6.0, pan: { x: 35, y: 120 } },   // 戈尔韦
+      global:  { zoom: 1.5, pan: { x: 20, y: 120 } },   // 默认聚焦爱尔兰
     };
 
     const settings = viewSettings[view];
