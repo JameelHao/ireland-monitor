@@ -5365,11 +5365,8 @@ export class DeckGLMap {
               'fill-color': '#888888',
               'fill-opacity': 0.4,
             },
-            // Filter: show grey for all countries EXCEPT Ireland (IE) and UK (GB for Northern Ireland context)
-            filter: ['all',
-              ['!=', ['get', 'ISO3166-1-Alpha-2'], 'IE'],
-              ['!=', ['get', 'ISO3166-1-Alpha-2'], 'GB'],
-            ],
+            // Filter: show grey for all countries EXCEPT Ireland (IE)
+            filter: ['!=', ['get', 'ISO3166-1-Alpha-2'], 'IE'],
           }, 'country-interactive'); // Insert below interactive layer
         }
 

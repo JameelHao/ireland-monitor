@@ -10,8 +10,8 @@ export * from './base';
 // SW corner: -15, 48 (includes more Atlantic)
 // NE corner: 2, 60 (includes UK mainland)
 export const IRELAND_BOUNDS = {
-  sw: { lng: -15, lat: 48 },
-  ne: { lng: 2, lat: 60 },
+  sw: { lng: -20, lat: 45 },
+  ne: { lng: 5, lat: 62 },
 } as const;
 
 // Minimum zoom level - lower = more zoomed out
