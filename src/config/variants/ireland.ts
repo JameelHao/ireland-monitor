@@ -78,32 +78,51 @@ export const PANELS: Record<string, PanelConfig> = {
   ieBusiness: { name: 'Business', enabled: true, priority: 6 },
 };
 
-// Ireland map layers (minimal for performance)
+// Ireland map layers (minimal for tech focus)
 const IRELAND_MAP_LAYERS: MapLayers = {
-  arcGis: false,
-  deckGl: false,
-  globe: true,
-  airports: false,
-  militaryBases: false,
-  nuclearSites: false,
-  underseaCables: false,
-  satellites: false,
-  borderDisputes: false,
-  refugeeCamps: false,
-  techHubs: true,
-  aiLabs: true,
-  startupEcosystems: true,
-  vcHq: false,
-  datacenters: false,
-  earthquakes: false,
-  activeVolcanoes: false,
-  weatherSevere: false,
-  powerOutages: false,
-  wildfires: false,
-  floods: false,
-  shipTracking: false,
-  flightTracking: false,
-  conflictZones: false,
+  conflicts: false,
+  bases: false,
+  cables: false,
+  pipelines: false,
+  hotspots: false,
+  ais: false,
+  nuclear: false,
+  irradiators: false,
+  radiationWatch: false,
+  sanctions: false,
+  weather: false,
+  economic: false,
+  waterways: false,
+  outages: false,
+  cyberThreats: false,
+  datacenters: true,  // 爱尔兰有很多数据中心
+  protests: false,
+  flights: false,
+  military: false,
+  natural: false,
+  spaceports: false,
+  minerals: false,
+  fires: false,
+  ucdpEvents: false,
+  displacement: false,
+  climate: false,
+  startupHubs: true,  // 科技创业中心
+  cloudRegions: true, // 云区域
+  accelerators: true, // 加速器
+  techHQs: true,      // 科技公司总部
+  techEvents: true,   // 科技活动
+  stockExchanges: false,
+  financialCenters: false,
+  centralBanks: false,
+  commodityHubs: false,
+  gulfInvestments: false,
+  positiveEvents: false,
+  kindness: false,
+  happiness: false,
+  speciesRecovery: false,
+  renewableInstallations: false,
+  tradeRoutes: false,
+  iranAttacks: false,
 };
 
 // Ireland variant config
