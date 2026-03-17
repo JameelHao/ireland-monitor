@@ -2836,7 +2836,8 @@ async function seedServiceStatuses() {
     const data = await resp.json();
     const count = data?.statuses?.length || 0;
     console.log(`[ServiceStatuses] Seed ping OK — ${count} statuses`);
-    await upstashSet('seed-meta:infra:service-statuses', { fetchedAt: Date.now(), recordCount: count }, 604800);
+    // seed-meta is written by listServiceStatuses handler only when fresh data
+    // is scraped; writing it here would mark fallback responses as fresh.
   } catch (e) {
     console.warn('[ServiceStatuses] Seed ping error:', e?.message || e);
   }
@@ -3190,7 +3191,8 @@ async function seedCableHealthWarmPing() {
     const data = await resp.json();
     const count = data?.cables ? Object.keys(data.cables).length : 0;
     console.log(`[CableHealth] Warm-ping OK: ${count} cables`);
-    await upstashSet('seed-meta:cable-health', { fetchedAt: Date.now(), recordCount: count }, 604800);
+    // seed-meta is written by getCableHealth handler only when source === 'fresh';
+    // writing it here would mark stale/cached responses as fresh.
   } catch (e) {
     console.warn('[CableHealth] Warm-ping error:', e?.message || e);
   }
