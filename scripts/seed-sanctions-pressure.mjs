@@ -9,7 +9,7 @@ loadEnvFile(import.meta.url);
 const CANONICAL_KEY = 'sanctions:pressure:v1';
 const STATE_KEY = 'sanctions:pressure:state:v1';
 const CACHE_TTL = 12 * 60 * 60;
-const DEFAULT_RECENT_LIMIT = 120;
+const DEFAULT_RECENT_LIMIT = 60;
 const OFAC_TIMEOUT_MS = 45_000;
 const PROGRAM_CODE_RE = /^[A-Z0-9][A-Z0-9-]{1,24}$/;
 
@@ -101,9 +101,13 @@ function buildLocationMap(doc, areaCodes) {
   for (const location of listify(doc?.Locations?.Location)) {
     const ids = listify(location?.LocationAreaCode).map((item) => String(item.AreaCodeID || ''));
     const mapped = ids.map((id) => areaCodes.get(id)).filter(Boolean);
+    // Sort code/name as pairs so codes[i] always corresponds to names[i]
+    const pairs = [...new Map(mapped.map((item) => [item.code, item.name])).entries()]
+      .filter(([code]) => code.length > 0)
+      .sort(([a], [b]) => a.localeCompare(b));
     locations.set(String(location.ID || ''), {
-      codes: uniqueSorted(mapped.map((item) => item.code)),
-      names: uniqueSorted(mapped.map((item) => item.name)),
+      codes: pairs.map(([code]) => code),
+      names: pairs.map(([, name]) => name),
     });
   }
   return locations;
@@ -134,8 +138,8 @@ function resolveEntityType(profile, featureTypes) {
 }
 
 function extractPartyCountries(profile, featureTypes, locations) {
-  const codes = [];
-  const names = [];
+  // Use a Map to deduplicate by code while preserving code→name alignment
+  const seen = new Map();
 
   for (const feature of listify(profile?.Feature)) {
     const featureType = featureTypes.get(String(feature?.FeatureTypeID || '')) || '';
@@ -147,15 +151,17 @@ function extractPartyCountries(profile, featureTypes, locations) {
       for (const locationId of locationIds) {
         const location = locations.get(locationId);
         if (!location) continue;
-        codes.push(...location.codes);
-        names.push(...location.names);
+        location.codes.forEach((code, i) => {
+          if (code && !seen.has(code)) seen.set(code, location.names[i] ?? '');
+        });
       }
     }
   }
 
+  const sorted = [...seen.entries()].sort(([a], [b]) => a.localeCompare(b));
   return {
-    countryCodes: uniqueSorted(codes),
-    countryNames: uniqueSorted(names),
+    countryCodes: sorted.map(([c]) => c),
+    countryNames: sorted.map(([, n]) => n),
   };
 }
 

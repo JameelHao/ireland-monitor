@@ -111,9 +111,13 @@ function buildLocationMap(doc: Record<string, unknown>, areaCodes: Map<string, {
   for (const location of listify(((doc.Locations as Record<string, unknown> | undefined)?.Location) as Record<string, unknown> | Record<string, unknown>[])) {
     const ids = listify(location.LocationAreaCode as Record<string, unknown> | Record<string, unknown>[]).map((item) => String(item.AreaCodeID || ''));
     const mapped = ids.map((id) => areaCodes.get(id)).filter((item): item is { code: string; name: string } => Boolean(item));
+    // Sort code/name as pairs so codes[i] always corresponds to names[i]
+    const pairs = [...new Map(mapped.map((item) => [item.code, item.name] as [string, string])).entries()]
+      .filter(([code]) => code.length > 0)
+      .sort(([a], [b]) => a.localeCompare(b));
     locations.set(String(location.ID || ''), {
-      codes: uniqueSorted(mapped.map((item) => item.code)),
-      names: uniqueSorted(mapped.map((item) => item.name)),
+      codes: pairs.map(([code]) => code),
+      names: pairs.map(([, name]) => name),
     });
   }
   return locations;
@@ -148,8 +152,8 @@ function extractPartyCountries(
   featureTypes: Map<string, string>,
   locations: Map<string, { codes: string[]; names: string[] }>,
 ): { countryCodes: string[]; countryNames: string[] } {
-  const codes: string[] = [];
-  const names: string[] = [];
+  // Use a Map to deduplicate by code while preserving code→name alignment
+  const seen = new Map<string, string>();
 
   for (const feature of listify(profile.Feature as Record<string, unknown> | Record<string, unknown>[])) {
     const featureType = featureTypes.get(String(feature?.FeatureTypeID || '')) || '';
@@ -160,15 +164,17 @@ function extractPartyCountries(
       for (const locationId of locationIds) {
         const location = locations.get(locationId);
         if (!location) continue;
-        codes.push(...location.codes);
-        names.push(...location.names);
+        location.codes.forEach((code, i) => {
+          if (code && !seen.has(code)) seen.set(code, location.names[i] ?? '');
+        });
       }
     }
   }
 
+  const sorted = [...seen.entries()].sort(([a], [b]) => a.localeCompare(b));
   return {
-    countryCodes: uniqueSorted(codes),
-    countryNames: uniqueSorted(names),
+    countryCodes: sorted.map(([c]) => c),
+    countryNames: sorted.map(([, n]) => n),
   };
 }
 
@@ -329,8 +335,11 @@ async function fetchSource(source: typeof OFAC_SOURCES[number]) {
 }
 
 function trimResponse(data: ListSanctionsPressureResponse, maxItems: number): ListSanctionsPressureResponse {
+  // Destructure out _state which may be present in seeded Redis payloads during the window
+  // between atomicPublish and afterPublish deletion
+  const { _state: _discarded, ...rest } = data as ListSanctionsPressureResponse & { _state?: unknown };
   return {
-    ...data,
+    ...rest,
     fetchedAt: String(data.fetchedAt ?? '0'),
     datasetDate: String(data.datasetDate ?? '0'),
     entries: (data.entries ?? []).map((entry) => ({
