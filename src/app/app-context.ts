@@ -79,8 +79,8 @@ export interface AppContext {
   isPlaybackMode: boolean;
   isIdle: boolean;
   initialLoadComplete: boolean;
-  // 爱尔兰本地化位置类型
-  resolvedLocation: 'ireland' | 'dublin' | 'cork' | 'galway' | 'global';
+
+  resolvedLocation: 'global' | 'america' | 'mena' | 'eu' | 'asia' | 'latam' | 'africa' | 'oceania';
 
   initialUrlState: import('@/utils').ParsedMapUrlState | null;
   readonly PANEL_ORDER_KEY: string;

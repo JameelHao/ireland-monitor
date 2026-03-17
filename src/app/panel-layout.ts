@@ -197,14 +197,16 @@ export class PanelLayoutManager implements AppModule {
             <span class="status-dot"></span>
             <span>${t('header.live')}</span>
           </div>
-          <!-- 爱尔兰本地化视图选择器 -->
           <div class="region-selector">
             <select id="regionSelect" class="region-select">
-              <option value="ireland">Ireland</option>
-              <option value="dublin">Dublin</option>
-              <option value="cork">Cork</option>
-              <option value="galway">Galway</option>
+              <option value="eu" selected>Europe (Ireland)</option>
               <option value="global">Global</option>
+              <option value="america">Americas</option>
+              <option value="mena">Middle East</option>
+              <option value="asia">Asia-Pacific</option>
+              <option value="latam">Latin America</option>
+              <option value="africa">Africa</option>
+              <option value="oceania">Oceania</option>
             </select>
           </div>
           <button class="mobile-search-btn" id="mobileSearchBtn" aria-label="${t('header.search')}">
@@ -282,14 +284,16 @@ export class PanelLayoutManager implements AppModule {
       <div class="region-sheet-backdrop" id="regionSheetBackdrop"></div>
       <div class="region-bottom-sheet" id="regionBottomSheet">
         <div class="region-sheet-header">${t('header.selectRegion')}</div>
-        <!-- 爱尔兰本地化移动端视图选择 -->
         <div class="region-sheet-divider"></div>
         ${[
-        { value: 'ireland', label: 'Ireland' },
-        { value: 'dublin', label: 'Dublin' },
-        { value: 'cork', label: 'Cork' },
-        { value: 'galway', label: 'Galway' },
+        { value: 'eu', label: 'Europe (Ireland)' },
         { value: 'global', label: 'Global' },
+        { value: 'america', label: 'Americas' },
+        { value: 'mena', label: 'Middle East' },
+        { value: 'asia', label: 'Asia-Pacific' },
+        { value: 'latam', label: 'Latin America' },
+        { value: 'africa', label: 'Africa' },
+        { value: 'oceania', label: 'Oceania' },
       ].map(r =>
         `<button class="region-sheet-option ${r.value === 'global' ? 'active' : ''}" data-region="${r.value}">
           <span>${r.label}</span>
