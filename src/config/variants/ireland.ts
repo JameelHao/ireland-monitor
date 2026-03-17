@@ -60,7 +60,6 @@ export const FEEDS: Record<string, Feed[]> = {
     { name: 'TechCrunch Startups', url: rss('https://techcrunch.com/category/startups/feed/') },
   ],
 
-  // 爱尔兰商业新闻
   // 爱尔兰科技峰会
   ieSummits: [
     { name: 'Dublin Tech Summit', url: rss('https://news.google.com/rss/search?q="Dublin+Tech+Summit"+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
@@ -68,7 +67,7 @@ export const FEEDS: Record<string, Feed[]> = {
     { name: 'SaaStock', url: rss('https://news.google.com/rss/search?q="SaaStock"+Dublin+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
   ],
 
-  ieSummits: { name: 'Summits', enabled: true, priority: 7 },
+  // 爱尔兰商业新闻
   ieBusiness: [
     { name: 'Irish Times Business', url: rss('https://www.irishtimes.com/business/rss') },
     { name: 'Irish Independent Business', url: rss('https://www.independent.ie/business/rss') },
@@ -83,15 +82,8 @@ export const PANELS: Record<string, PanelConfig> = {
   tech: { name: 'Global Tech', enabled: true, priority: 3 },
   ai: { name: 'AI/ML', enabled: true, priority: 4 },
   startups: { name: 'Startups', enabled: true, priority: 5 },
-  // 爱尔兰科技峰会
-  ieSummits: [
-    { name: 'Dublin Tech Summit', url: rss('https://news.google.com/rss/search?q="Dublin+Tech+Summit"+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
-    { name: 'Web Summit', url: rss('https://news.google.com/rss/search?q="Web+Summit"+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
-    { name: 'SaaStock', url: rss('https://news.google.com/rss/search?q="SaaStock"+Dublin+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
-  ],
-
-  ieSummits: { name: 'Summits', enabled: true, priority: 7 },
-  ieBusiness: { name: 'Business', enabled: true, priority: 6 },
+  ieSummits: { name: 'Summits', enabled: true, priority: 6 },
+  ieBusiness: { name: 'Business', enabled: true, priority: 7 },
 };
 
 // Ireland map layers (minimal for tech focus)
