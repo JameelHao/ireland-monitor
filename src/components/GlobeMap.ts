@@ -2434,15 +2434,13 @@ export class GlobeMap {
 
   // ─── Camera / navigation ──────────────────────────────────────────────────
 
+  // 爱尔兰本地化视角配置
   private static readonly VIEW_POVS: Record<MapView, { lat: number; lng: number; altitude: number }> = {
-    global:   { lat: 20,  lng:  0,   altitude: 1.8 },
-    america:  { lat: 20,  lng: -90,  altitude: 1.5 },
-    mena:     { lat: 25,  lng:  40,  altitude: 1.2 },
-    eu:       { lat: 50,  lng:  10,  altitude: 1.2 },
-    asia:     { lat: 35,  lng: 105,  altitude: 1.5 },
-    latam:    { lat: -15, lng: -60,  altitude: 1.5 },
-    africa:   { lat:  5,  lng:  20,  altitude: 1.5 },
-    oceania:  { lat: -25, lng: 140,  altitude: 1.5 },
+    ireland:  { lat: 53.35, lng: -6.26,  altitude: 0.25 },  // 爱尔兰全景
+    dublin:   { lat: 53.35, lng: -6.26,  altitude: 0.15 },  // 都柏林
+    cork:     { lat: 51.90, lng: -8.47,  altitude: 0.15 },  // 科克
+    galway:   { lat: 53.27, lng: -9.05,  altitude: 0.15 },  // 戈尔韦
+    global:   { lat: 53.35, lng: -6.26,  altitude: 0.3  },  // 默认聚焦爱尔兰
   };
 
   public setView(view: MapView): void {
