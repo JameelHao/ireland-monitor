@@ -46,6 +46,7 @@ import type { ImageryScene } from '@/generated/server/worldmonitor/imagery/v1/se
 import type { WebcamEntry, WebcamCluster } from '@/generated/client/worldmonitor/webcam/v1/service_client';
 
 export type TimeRange = '1h' | '6h' | '24h' | '48h' | '7d' | 'all';
+
 export type MapView = 'global' | 'america' | 'mena' | 'eu' | 'asia' | 'latam' | 'africa' | 'oceania';
 
 export interface MapContainerState {

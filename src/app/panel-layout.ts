@@ -199,14 +199,14 @@ export class PanelLayoutManager implements AppModule {
           </div>
           <div class="region-selector">
             <select id="regionSelect" class="region-select">
-              <option value="global">${t('components.deckgl.views.global')}</option>
-              <option value="america">${t('components.deckgl.views.americas')}</option>
-              <option value="mena">${t('components.deckgl.views.mena')}</option>
-              <option value="eu">${t('components.deckgl.views.europe')}</option>
-              <option value="asia">${t('components.deckgl.views.asia')}</option>
-              <option value="latam">${t('components.deckgl.views.latam')}</option>
-              <option value="africa">${t('components.deckgl.views.africa')}</option>
-              <option value="oceania">${t('components.deckgl.views.oceania')}</option>
+              <option value="eu" selected>Europe (Ireland)</option>
+              <option value="global">Global</option>
+              <option value="america">Americas</option>
+              <option value="mena">Middle East</option>
+              <option value="asia">Asia-Pacific</option>
+              <option value="latam">Latin America</option>
+              <option value="africa">Africa</option>
+              <option value="oceania">Oceania</option>
             </select>
           </div>
           <button class="mobile-search-btn" id="mobileSearchBtn" aria-label="${t('header.search')}">
@@ -286,14 +286,14 @@ export class PanelLayoutManager implements AppModule {
         <div class="region-sheet-header">${t('header.selectRegion')}</div>
         <div class="region-sheet-divider"></div>
         ${[
-        { value: 'global', label: t('components.deckgl.views.global') },
-        { value: 'america', label: t('components.deckgl.views.americas') },
-        { value: 'mena', label: t('components.deckgl.views.mena') },
-        { value: 'eu', label: t('components.deckgl.views.europe') },
-        { value: 'asia', label: t('components.deckgl.views.asia') },
-        { value: 'latam', label: t('components.deckgl.views.latam') },
-        { value: 'africa', label: t('components.deckgl.views.africa') },
-        { value: 'oceania', label: t('components.deckgl.views.oceania') },
+        { value: 'eu', label: 'Europe (Ireland)' },
+        { value: 'global', label: 'Global' },
+        { value: 'america', label: 'Americas' },
+        { value: 'mena', label: 'Middle East' },
+        { value: 'asia', label: 'Asia-Pacific' },
+        { value: 'latam', label: 'Latin America' },
+        { value: 'africa', label: 'Africa' },
+        { value: 'oceania', label: 'Oceania' },
       ].map(r =>
         `<button class="region-sheet-option ${r.value === 'global' ? 'active' : ''}" data-region="${r.value}">
           <span>${r.label}</span>

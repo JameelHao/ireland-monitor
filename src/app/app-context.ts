@@ -79,6 +79,7 @@ export interface AppContext {
   isPlaybackMode: boolean;
   isIdle: boolean;
   initialLoadComplete: boolean;
+
   resolvedLocation: 'global' | 'america' | 'mena' | 'eu' | 'asia' | 'latam' | 'africa' | 'oceania';
 
   initialUrlState: import('@/utils').ParsedMapUrlState | null;

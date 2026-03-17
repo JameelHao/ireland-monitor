@@ -2434,15 +2434,16 @@ export class GlobeMap {
 
   // ─── Camera / navigation ──────────────────────────────────────────────────
 
+  // 视角配置 - 默认聚焦爱尔兰/欧洲
   private static readonly VIEW_POVS: Record<MapView, { lat: number; lng: number; altitude: number }> = {
-    global:   { lat: 20,  lng:  0,   altitude: 1.8 },
-    america:  { lat: 20,  lng: -90,  altitude: 1.5 },
-    mena:     { lat: 25,  lng:  40,  altitude: 1.2 },
-    eu:       { lat: 50,  lng:  10,  altitude: 1.2 },
-    asia:     { lat: 35,  lng: 105,  altitude: 1.5 },
-    latam:    { lat: -15, lng: -60,  altitude: 1.5 },
-    africa:   { lat:  5,  lng:  20,  altitude: 1.5 },
-    oceania:  { lat: -25, lng: 140,  altitude: 1.5 },
+    global:   { lat: 53.35, lng: -6.26,  altitude: 0.3  },  // 默认聚焦爱尔兰
+    america:  { lat: 20,    lng: -90,    altitude: 1.5 },
+    mena:     { lat: 25,    lng: 40,     altitude: 1.2 },
+    eu:       { lat: 53.35, lng: -6.26,  altitude: 0.25 },  // 聚焦爱尔兰
+    asia:     { lat: 35,    lng: 105,    altitude: 1.5 },
+    latam:    { lat: -15,   lng: -60,    altitude: 1.5 },
+    africa:   { lat: 5,     lng: 20,     altitude: 1.5 },
+    oceania:  { lat: -25,   lng: 140,    altitude: 1.5 },
   };
 
   public setView(view: MapView): void {
