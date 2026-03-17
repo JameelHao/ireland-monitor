@@ -1,3 +1,5 @@
+import { SITE_VARIANT } from '@/config/variant';
+
 import type { AppContext, AppModule } from '@/app/app-context';
 import { replayPendingCalls, clearAllPendingCalls } from '@/app/pending-panel-data';
 import type { RelatedAsset } from '@/types';
@@ -26,6 +28,11 @@ import {
   TechEventsPanel,
   ServiceStatusPanel,
   RuntimeConfigPanel,
+
+// Brand names based on variant
+const BRAND_NAME = SITE_VARIANT === 'ireland' ? 'IRISHTECH DAILY' : 'WORLD MONITOR';
+const BRAND_SHORT = SITE_VARIANT === 'ireland' ? 'IrishTech' : 'Monitor';
+const BRAND_LOGO = SITE_VARIANT === 'ireland' ? 'IRISHTECH' : 'MONITOR';
   InsightsPanel,
   MacroSignalsPanel,
   ETFFlowsPanel,
@@ -182,7 +189,7 @@ export class PanelLayoutManager implements AppModule {
               <span class="variant-label">Good News</span>
             </a>`;
       })()}</div>
-          <span class="logo">MONITOR</span><span class="logo-mobile">World Monitor</span><span class="version">v${__APP_VERSION__}</span>${BETA_MODE ? '<span class="beta-badge">BETA</span>' : ''}
+          <span class="logo">${BRAND_LOGO}</span><span class="logo-mobile">${BRAND_NAME}</span><span class="version">v${__APP_VERSION__}</span>${BETA_MODE ? '<span class="beta-badge">BETA</span>' : ''}
           <a href="https://x.com/eliehabib" target="_blank" rel="noopener" class="credit-link">
             <svg class="x-logo" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
             <span class="credit-text">@eliehabib</span>
@@ -231,7 +238,7 @@ export class PanelLayoutManager implements AppModule {
       <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
       <nav class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu-header">
-          <span class="mobile-menu-title">WORLD MONITOR</span>
+          <span class="mobile-menu-title">${BRAND_NAME}</span>
           <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
@@ -335,7 +342,7 @@ export class PanelLayoutManager implements AppModule {
         <div class="site-footer-brand">
           <img src="/favico/favicon-32x32.png" alt="" width="28" height="28" class="site-footer-icon" />
           <div class="site-footer-brand-text">
-            <span class="site-footer-name">WORLD MONITOR</span>
+            <span class="site-footer-name">${BRAND_NAME}</span>
             <span class="site-footer-sub">by Someone.ceo</span>
           </div>
         </div>
@@ -348,7 +355,7 @@ export class PanelLayoutManager implements AppModule {
           <a href="https://github.com/koala73/worldmonitor/discussions" target="_blank" rel="noopener">Discussions</a>
           <a href="https://x.com/worldmonitorai" target="_blank" rel="noopener">X</a>
         </nav>
-        <span class="site-footer-copy">&copy; ${new Date().getFullYear()} World Monitor</span>
+        <span class="site-footer-copy">&copy; ${new Date().getFullYear()} ${BRAND_NAME}</span>
       </footer>
     `;
 
@@ -498,10 +505,17 @@ export class PanelLayoutManager implements AppModule {
 
     const mapContainer = document.getElementById('mapContainer') as HTMLElement;
     const preferGlobe = loadFromStorage<string>(STORAGE_KEYS.mapMode, 'flat') === 'globe';
+    
+    // Ireland variant: zoom to Ireland by default
+    const isIreland = SITE_VARIANT === 'ireland';
+    const defaultZoom = isIreland ? (this.ctx.isMobile ? 4.0 : 5.0) : (this.ctx.isMobile ? 2.5 : 1.0);
+    const defaultPan = isIreland ? { x: 20, y: 120 } : { x: 0, y: 0 };
+    const defaultView = isIreland ? 'eu' : (this.ctx.isMobile ? this.ctx.resolvedLocation : 'global');
+    
     this.ctx.map = new MapContainer(mapContainer, {
-      zoom: this.ctx.isMobile ? 2.5 : 1.0,
-      pan: { x: 0, y: 0 },
-      view: this.ctx.isMobile ? this.ctx.resolvedLocation : 'global',
+      zoom: defaultZoom,
+      pan: defaultPan,
+      view: defaultView,
       layers: this.ctx.mapLayers,
       timeRange: '7d',
     }, preferGlobe);
