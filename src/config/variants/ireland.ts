@@ -88,7 +88,6 @@ const IRELAND_MAP_LAYERS: MapLayers = {
   ais: false,
   nuclear: false,
   irradiators: false,
-  radiationWatch: false,
   sanctions: false,
   weather: false,
   economic: false,
@@ -123,6 +122,14 @@ const IRELAND_MAP_LAYERS: MapLayers = {
   renewableInstallations: false,
   tradeRoutes: false,
   iranAttacks: false,
+  gpsJamming: false,
+  satellites: false,
+  ciiChoropleth: false,
+  dayNight: false,
+  miningSites: false,
+  processingPlants: false,
+  commodityPorts: false,
+  webcams: false,
 };
 
 // Ireland variant config
