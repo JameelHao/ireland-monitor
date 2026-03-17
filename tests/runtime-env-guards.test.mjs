@@ -26,11 +26,17 @@ describe('runtime env guards', () => {
 });
 
 describe('variant env guards', () => {
-  it('computes the build variant through a guarded import.meta.env access', () => {
+  it('computes the build variant through a guarded import.meta.env access with validation', () => {
+    // New pattern includes isValidVariant check
     assert.match(
       variantSrc,
-      /const buildVariant = \(\(\) => \{\s*try \{\s*return import\.meta\.env\?\.VITE_VARIANT \|\| 'full';\s*\} catch \{\s*return 'full';\s*\}\s*\}\)\(\);/s,
+      /const buildVariant = \(\(\) => \{\s*try \{\s*const v = import\.meta\.env\?\.VITE_VARIANT \|\| 'full';\s*return isValidVariant\(v\) \? v : 'full';\s*\} catch \{\s*return 'full';\s*\}\s*\}\)\(\);/s,
     );
+  });
+
+  it('has isValidVariant helper that includes ireland', () => {
+    assert.ok(variantSrc.includes("'ireland'"), 'ireland should be a valid variant');
+    assert.ok(variantSrc.includes('isValidVariant'), 'isValidVariant function should exist');
   });
 
   it('reuses buildVariant for SSR, Tauri, and localhost fallback paths', () => {
