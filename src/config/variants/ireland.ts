@@ -1,16 +1,14 @@
 // Ireland Tech variant - IrishTech Daily
-import type { PanelConfig, MapLayers } from '@/types';
+import type { PanelConfig, MapLayers, Feed } from '@/types';
 import type { VariantConfig } from './base';
+import { rssProxyUrl } from '@/utils';
 
 // Re-export base config
 export * from './base';
 
-// Ireland-specific FEEDS configuration
-import type { Feed } from '@/types';
-import { rssProxyUrl } from '@/utils';
-
 const rss = rssProxyUrl;
 
+// Ireland-specific FEEDS configuration
 export const FEEDS: Record<string, Feed[]> = {
   // 爱尔兰科技新闻
   ieTech: [
@@ -80,11 +78,39 @@ export const PANELS: Record<string, PanelConfig> = {
   ieBusiness: { name: 'Business', enabled: true, priority: 6 },
 };
 
+// Ireland map layers (minimal for performance)
+const IRELAND_MAP_LAYERS: MapLayers = {
+  arcGis: false,
+  deckGl: false,
+  globe: true,
+  airports: false,
+  militaryBases: false,
+  nuclearSites: false,
+  underseaCables: false,
+  satellites: false,
+  borderDisputes: false,
+  refugeeCamps: false,
+  techHubs: true,
+  aiLabs: true,
+  startupEcosystems: true,
+  vcHq: false,
+  datacenters: false,
+  earthquakes: false,
+  activeVolcanoes: false,
+  weatherSevere: false,
+  powerOutages: false,
+  wildfires: false,
+  floods: false,
+  shipTracking: false,
+  flightTracking: false,
+  conflictZones: false,
+};
+
 // Ireland variant config
 export const VARIANT_CONFIG: VariantConfig = {
-  variant: 'ireland',
   name: 'IrishTech Daily',
   description: "Ireland's tech pulse, daily",
-  defaultView: 'eu',
-  defaultPanels: ['ieTech', 'ieAcademic', 'tech', 'ai', 'startups'],
+  panels: PANELS,
+  mapLayers: IRELAND_MAP_LAYERS,
+  mobileMapLayers: IRELAND_MAP_LAYERS,
 };
