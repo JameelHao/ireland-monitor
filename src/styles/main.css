@@ -1,3 +1,6 @@
+@import './rtl-overrides.css';
+@import './panels.css';
+
 /* IrishTech Daily - 爱尔兰绿色主题 */
 :root {
   --irish-green: #169B62;
@@ -10,15 +13,11 @@
   --accent-brand: var(--irish-orange);
 }
 
-@import './rtl-overrides.css';
-@import './panels.css';
-
 /* ============================================================
    Theme Colors — overridden by [data-theme="light"] below
    ============================================================ */
 :root {
   /* Backgrounds */
-  --bg: #0a0a0a;
   --bg-secondary: #111;
   --surface: #141414;
   --surface-hover: #1e1e1e;
