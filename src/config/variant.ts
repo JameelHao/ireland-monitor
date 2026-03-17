@@ -1,6 +1,13 @@
+// Valid variants including Ireland
+type Variant = 'full' | 'tech' | 'finance' | 'happy' | 'commodity' | 'ireland';
+
+const isValidVariant = (v: string): v is Variant =>
+  ['full', 'tech', 'finance', 'happy', 'commodity', 'ireland'].includes(v);
+
 const buildVariant = (() => {
   try {
-    return import.meta.env?.VITE_VARIANT || 'full';
+    const v = import.meta.env?.VITE_VARIANT || 'full';
+    return isValidVariant(v) ? v : 'full';
   } catch {
     return 'full';
   }
@@ -12,7 +19,7 @@ export const SITE_VARIANT: string = (() => {
   const isTauri = '__TAURI_INTERNALS__' in window || '__TAURI__' in window;
   if (isTauri) {
     const stored = localStorage.getItem('worldmonitor-variant');
-    if (stored === 'tech' || stored === 'full' || stored === 'finance' || stored === 'happy' || stored === 'commodity') return stored;
+    if (stored && isValidVariant(stored)) return stored;
     return buildVariant;
   }
 
@@ -21,10 +28,11 @@ export const SITE_VARIANT: string = (() => {
   if (h.startsWith('finance.')) return 'finance';
   if (h.startsWith('happy.')) return 'happy';
   if (h.startsWith('commodity.')) return 'commodity';
+  if (h.startsWith('ireland.') || h.includes('ireland-monitor')) return 'ireland';
 
   if (h === 'localhost' || h === '127.0.0.1') {
     const stored = localStorage.getItem('worldmonitor-variant');
-    if (stored === 'tech' || stored === 'full' || stored === 'finance' || stored === 'happy' || stored === 'commodity') return stored;
+    if (stored && isValidVariant(stored)) return stored;
     return buildVariant;
   }
 
