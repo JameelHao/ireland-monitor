@@ -6,16 +6,16 @@ import { rssProxyUrl } from '@/utils';
 // Re-export base config
 export * from './base';
 
-// Ireland geographic bounds for map locking (expanded to show context)
-// SW corner: -12, 50 (southwest, includes some ocean)
-// NE corner: -4, 56 (northeast, includes Scotland coast)
+// Ireland geographic bounds for map locking (expanded to show UK context)
+// SW corner: -15, 48 (includes more Atlantic)
+// NE corner: 2, 60 (includes UK mainland)
 export const IRELAND_BOUNDS = {
-  sw: { lng: -12, lat: 50 },
-  ne: { lng: -4, lat: 56 },
+  sw: { lng: -15, lat: 48 },
+  ne: { lng: 2, lat: 60 },
 } as const;
 
 // Minimum zoom level - lower = more zoomed out
-export const IRELAND_MIN_ZOOM = 4;
+export const IRELAND_MIN_ZOOM = 3;
 
 // Center of Ireland for default map position
 export const IRELAND_CENTER = {
