@@ -129,7 +129,35 @@ export class PanelLayoutManager implements AppModule {
     window.removeEventListener('resize', this.ensureCorrectZones);
   }
 
+  // Helper method to render region sheet (mobile bottom sheet for region selection)
+  private renderRegionSheet(): string {
+    const regions = [
+      { value: 'eu', label: 'Europe (Ireland)' },
+      { value: 'global', label: 'Global' },
+      { value: 'america', label: 'Americas' },
+      { value: 'mena', label: 'Middle East' },
+      { value: 'asia', label: 'Asia-Pacific' },
+      { value: 'latam', label: 'Latin America' },
+      { value: 'africa', label: 'Africa' },
+      { value: 'oceania', label: 'Oceania' },
+    ];
+    return `<div class="region-sheet-backdrop" id="regionSheetBackdrop"></div>
+      <div class="region-bottom-sheet" id="regionBottomSheet">
+        <div class="region-sheet-header">${t('header.selectRegion')}</div>
+        <div class="region-sheet-divider"></div>
+        ${regions.map(r =>
+          `<button class="region-sheet-option ${r.value === 'global' ? 'active' : ''}" data-region="${r.value}">
+            <span>${r.label}</span>
+            <span class="region-sheet-check">${r.value === 'global' ? '✓' : ''}</span>
+          </button>`
+        ).join('')}
+      </div>`;
+  }
+
   renderLayout(): void {
+    // Ireland variant: hide region selector
+    const showRegionSelector = SITE_VARIANT !== 'ireland';
+    
     this.ctx.container.innerHTML = `
       ${this.ctx.isDesktopApp ? '<div class="tauri-titlebar" data-tauri-drag-region></div>' : ''}
       <div class="header">
@@ -203,7 +231,7 @@ export class PanelLayoutManager implements AppModule {
             <span class="status-dot"></span>
             <span>${t('header.live')}</span>
           </div>
-          <div class="region-selector">
+          ${showRegionSelector ? `<div class="region-selector">
             <select id="regionSelect" class="region-select">
               <option value="eu" selected>Europe (Ireland)</option>
               <option value="global">Global</option>
@@ -214,7 +242,7 @@ export class PanelLayoutManager implements AppModule {
               <option value="africa">Africa</option>
               <option value="oceania">Oceania</option>
             </select>
-          </div>
+          </div>` : ''}
           <button class="mobile-search-btn" id="mobileSearchBtn" aria-label="${t('header.search')}">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </button>
@@ -287,26 +315,7 @@ export class PanelLayoutManager implements AppModule {
         </div>
         <div class="mobile-menu-version">v${__APP_VERSION__}</div>
       </nav>
-      <div class="region-sheet-backdrop" id="regionSheetBackdrop"></div>
-      <div class="region-bottom-sheet" id="regionBottomSheet">
-        <div class="region-sheet-header">${t('header.selectRegion')}</div>
-        <div class="region-sheet-divider"></div>
-        ${[
-        { value: 'eu', label: 'Europe (Ireland)' },
-        { value: 'global', label: 'Global' },
-        { value: 'america', label: 'Americas' },
-        { value: 'mena', label: 'Middle East' },
-        { value: 'asia', label: 'Asia-Pacific' },
-        { value: 'latam', label: 'Latin America' },
-        { value: 'africa', label: 'Africa' },
-        { value: 'oceania', label: 'Oceania' },
-      ].map(r =>
-        `<button class="region-sheet-option ${r.value === 'global' ? 'active' : ''}" data-region="${r.value}">
-          <span>${r.label}</span>
-          <span class="region-sheet-check">${r.value === 'global' ? '✓' : ''}</span>
-        </button>`
-      ).join('')}
-      </div>
+      ${showRegionSelector ? this.renderRegionSheet() : ''}
       <div class="main-content">
         <div class="map-section" id="mapSection">
           <div class="panel-header">

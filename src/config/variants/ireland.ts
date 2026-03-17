@@ -6,6 +6,23 @@ import { rssProxyUrl } from '@/utils';
 // Re-export base config
 export * from './base';
 
+// Ireland geographic bounds for map locking
+// SW corner: -10.5, 51.4 (southwest Ireland)
+// NE corner: -5.5, 55.4 (northeast Ireland)
+export const IRELAND_BOUNDS = {
+  sw: { lng: -10.5, lat: 51.4 },
+  ne: { lng: -5.5, lat: 55.4 },
+} as const;
+
+// Minimum zoom level to prevent seeing other countries
+export const IRELAND_MIN_ZOOM = 5;
+
+// Center of Ireland for default map position
+export const IRELAND_CENTER = {
+  lat: 53.4,
+  lng: -8.0,
+} as const;
+
 const rss = rssProxyUrl;
 
 // Ireland-specific FEEDS configuration

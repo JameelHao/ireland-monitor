@@ -34,6 +34,8 @@ import {
   SPACEPORTS,
   CRITICAL_MINERALS,
   SITE_VARIANT,
+  // IRELAND_BOUNDS is not used in SVG map (bounds enforced via zoom limits)
+  IRELAND_MIN_ZOOM,
   // Tech variant data
   STARTUP_HUBS,
   ACCELERATORS,
@@ -724,7 +726,7 @@ export class MapComponent {
         if (e.ctrlKey) {
           // Pinch-to-zoom on trackpad
           const zoomDelta = -e.deltaY * 0.01;
-          this.state.zoom = Math.max(1, Math.min(10, this.state.zoom + zoomDelta));
+          this.state.zoom = Math.max(SITE_VARIANT === 'ireland' ? IRELAND_MIN_ZOOM : 1, Math.min(10, this.state.zoom + zoomDelta));
         } else {
           // Two-finger scroll for pan, regular scroll for zoom
           if (Math.abs(e.deltaX) > Math.abs(e.deltaY) * 0.5 || e.shiftKey) {
@@ -735,7 +737,7 @@ export class MapComponent {
           } else {
             // Vertical scroll = zoom
             const zoomDelta = e.deltaY > 0 ? -0.15 : 0.15;
-            this.state.zoom = Math.max(1, Math.min(10, this.state.zoom + zoomDelta));
+            this.state.zoom = Math.max(SITE_VARIANT === 'ireland' ? IRELAND_MIN_ZOOM : 1, Math.min(10, this.state.zoom + zoomDelta));
           }
         }
         this.applyTransform();
@@ -820,7 +822,7 @@ export class MapComponent {
           touch2.clientY - touch1.clientY
         );
         const scale = dist / lastTouchDist;
-        this.state.zoom = Math.max(1, Math.min(10, this.state.zoom * scale));
+        this.state.zoom = Math.max(SITE_VARIANT === 'ireland' ? IRELAND_MIN_ZOOM : 1, Math.min(10, this.state.zoom * scale));
         lastTouchDist = dist;
 
         const center = {
@@ -3420,12 +3422,14 @@ export class MapComponent {
   }
 
   public zoomOut(): void {
-    this.state.zoom = Math.max(this.state.zoom - 0.5, 1);
+    const minZoom = SITE_VARIANT === 'ireland' ? IRELAND_MIN_ZOOM : 1;
+    this.state.zoom = Math.max(this.state.zoom - 0.5, minZoom);
     this.applyTransform();
   }
 
   public reset(): void {
-    this.state.zoom = 1;
+    const minZoom = SITE_VARIANT === 'ireland' ? IRELAND_MIN_ZOOM : 1;
+    this.state.zoom = minZoom;
     this.state.pan = { x: 0, y: 0 };
     if (this.state.view !== 'global') {
       this.state.view = 'global';
@@ -3812,7 +3816,9 @@ export class MapComponent {
   }
 
   public setZoom(zoom: number): void {
-    this.state.zoom = Math.max(1, Math.min(10, zoom));
+    // Ireland variant: enforce minimum zoom level
+    const minZoom = SITE_VARIANT === 'ireland' ? IRELAND_MIN_ZOOM : 1;
+    this.state.zoom = Math.max(minZoom, Math.min(10, zoom));
     this.applyTransform();
     // Ensure base layer is intact after zoom change
     this.ensureBaseLayerIntact();

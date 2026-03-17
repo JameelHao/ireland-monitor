@@ -6,6 +6,9 @@
 
 export { SITE_VARIANT } from './variant';
 
+// Ireland variant bounds and zoom limits
+export { IRELAND_BOUNDS, IRELAND_MIN_ZOOM, IRELAND_CENTER } from './variants/ireland';
+
 // Shared base configuration (always included)
 export {
   IDLE_PAUSE_MS,

@@ -78,6 +78,8 @@ import {
   CLOUD_REGIONS,
   PORTS,
   SPACEPORTS,
+  IRELAND_BOUNDS,
+  IRELAND_MIN_ZOOM,
   APT_GROUPS,
   CRITICAL_MINERALS,
   STOCK_EXCHANGES,
@@ -560,6 +562,13 @@ export class DeckGLMap {
     const basemapEl = document.getElementById('deckgl-basemap');
     if (!basemapEl) return;
 
+    // Ireland variant: lock map to Ireland bounds
+    const isIrelandVariant = SITE_VARIANT === 'ireland';
+    const irelandMapOptions = isIrelandVariant ? {
+      maxBounds: [[IRELAND_BOUNDS.sw.lng, IRELAND_BOUNDS.sw.lat], [IRELAND_BOUNDS.ne.lng, IRELAND_BOUNDS.ne.lat]] as [[number, number], [number, number]],
+      minZoom: IRELAND_MIN_ZOOM,
+    } : {};
+
     this.maplibreMap = new maplibregl.Map({
       container: basemapEl,
       style: primaryStyle,
@@ -568,6 +577,7 @@ export class DeckGLMap {
       renderWorldCopies: false,
       attributionControl: false,
       interactive: true,
+      ...irelandMapOptions,
       ...(MAP_INTERACTION_MODE === 'flat'
         ? {
           maxPitch: 0,
@@ -596,6 +606,7 @@ export class DeckGLMap {
         renderWorldCopies: false,
         attributionControl: false,
         interactive: true,
+        ...irelandMapOptions,
         ...(MAP_INTERACTION_MODE === 'flat'
           ? {
             maxPitch: 0,
