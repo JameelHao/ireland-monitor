@@ -5355,19 +5355,32 @@ export class DeckGLMap {
           filter: ['==', ['get', 'ISO3166-1-Alpha-2'], ''],
         });
 
-        // Ireland variant: desaturate non-Ireland countries with subtle overlay
+        // Ireland variant: highlight Ireland by darkening other countries
         if (SITE_VARIANT === 'ireland') {
+          // Use the existing country-boundaries source to fill non-IE countries with dark overlay
           this.maplibreMap.addLayer({
-            id: 'ireland-grey-overlay',
+            id: 'ireland-dim-overlay',
             type: 'fill',
             source: 'country-boundaries',
             paint: {
-              'fill-color': '#1a1a2e',  // Dark blue-grey to blend with dark theme
-              'fill-opacity': 0.5,
+              'fill-color': '#000000',
+              'fill-opacity': 0.35,
             },
-            // Filter: show overlay for all countries EXCEPT Ireland (IE)
             filter: ['!=', ['get', 'ISO3166-1-Alpha-2'], 'IE'],
-          }); // Add at top of layer stack
+          }, 'country-interactive');
+          
+          // Add a subtle highlight border around Ireland
+          this.maplibreMap.addLayer({
+            id: 'ireland-highlight-border',
+            type: 'line',
+            source: 'country-boundaries',
+            paint: {
+              'line-color': '#4ade80',  // Green highlight
+              'line-width': 2,
+              'line-opacity': 0.8,
+            },
+            filter: ['==', ['get', 'ISO3166-1-Alpha-2'], 'IE'],
+          });
         }
 
         if (!this.countryHoverSetup) this.setupCountryHover();
