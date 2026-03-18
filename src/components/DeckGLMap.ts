@@ -438,7 +438,14 @@ export class DeckGLMap {
       pan: { ...initialState.pan },
       layers: { ...initialState.layers },
     };
-    this.hotspots = [...INTEL_HOTSPOTS];
+    // For Ireland variant: filter hotspots to Ireland region only
+    if (SITE_VARIANT === 'ireland') {
+      this.hotspots = INTEL_HOTSPOTS.filter(h => 
+        h.lat >= 51.4 && h.lat <= 55.5 && h.lon >= -10.5 && h.lon <= -5.5
+      );
+    } else {
+      this.hotspots = [...INTEL_HOTSPOTS];
+    }
 
     this.debouncedRebuildLayers = debounce(() => {
       if (this.renderPaused || this.webglLost || !this.maplibreMap) return;
@@ -4846,7 +4853,13 @@ export class DeckGLMap {
 
   public setNewsLocations(data: Array<{ lat: number; lon: number; title: string; threatLevel: string; timestamp?: Date }>): void {
     const now = Date.now();
-    for (const d of data) {
+    
+    // For Ireland variant: filter news to Ireland region only
+    const filteredData = SITE_VARIANT === 'ireland' 
+      ? data.filter(d => d.lat >= 51.4 && d.lat <= 55.5 && d.lon >= -10.5 && d.lon <= -5.5)
+      : data;
+    
+    for (const d of filteredData) {
       if (!this.newsLocationFirstSeen.has(d.title)) {
         this.newsLocationFirstSeen.set(d.title, now);
       }
@@ -4854,7 +4867,7 @@ export class DeckGLMap {
     for (const [key, ts] of this.newsLocationFirstSeen) {
       if (now - ts > 60_000) this.newsLocationFirstSeen.delete(key);
     }
-    this.newsLocations = data;
+    this.newsLocations = filteredData;
     this.render();
 
     this.syncPulseAnimation(now);
