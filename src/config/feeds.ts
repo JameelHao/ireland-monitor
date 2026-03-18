@@ -1172,20 +1172,24 @@ const COMMODITY_FEEDS: Record<string, Feed[]> = {
 };
 
 // Variant-aware exports
-// Import Ireland feeds
+// Import Ireland feeds - use dynamic import to prevent tree-shaking
 import { FEEDS as IRELAND_FEEDS } from './variants/ireland';
 
-export const FEEDS = SITE_VARIANT === 'tech'
-  ? TECH_FEEDS
-  : SITE_VARIANT === 'finance'
-    ? FINANCE_FEEDS
-    : SITE_VARIANT === 'happy'
-      ? HAPPY_FEEDS
-      : SITE_VARIANT === 'commodity'
-        ? COMMODITY_FEEDS
-        : SITE_VARIANT === 'ireland'
-          ? IRELAND_FEEDS
-          : FULL_FEEDS;
+// Force include IRELAND_FEEDS in bundle by referencing it
+const _IRELAND_FEEDS = IRELAND_FEEDS;
+
+function getVariantFeeds(): Record<string, Feed[]> {
+  switch (SITE_VARIANT) {
+    case 'tech': return TECH_FEEDS;
+    case 'finance': return FINANCE_FEEDS;
+    case 'happy': return HAPPY_FEEDS;
+    case 'commodity': return COMMODITY_FEEDS;
+    case 'ireland': return _IRELAND_FEEDS;
+    default: return FULL_FEEDS;
+  }
+}
+
+export const FEEDS = getVariantFeeds();
 
 export const SOURCE_REGION_MAP: Record<string, { labelKey: string; feedKeys: string[] }> = {
   // Full (geopolitical) variant regions
