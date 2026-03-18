@@ -438,10 +438,10 @@ export class DeckGLMap {
       pan: { ...initialState.pan },
       layers: { ...initialState.layers },
     };
-    // For Ireland variant: filter hotspots to Ireland region only
+    // For Ireland variant: filter hotspots to Ireland + UK region
     if (SITE_VARIANT === 'ireland') {
       this.hotspots = INTEL_HOTSPOTS.filter(h => 
-        h.lat >= 51.4 && h.lat <= 55.5 && h.lon >= -10.5 && h.lon <= -5.5
+        h.lat >= 48 && h.lat <= 62 && h.lon >= -12 && h.lon <= 2
       );
     } else {
       this.hotspots = [...INTEL_HOTSPOTS];
@@ -4854,9 +4854,9 @@ export class DeckGLMap {
   public setNewsLocations(data: Array<{ lat: number; lon: number; title: string; threatLevel: string; timestamp?: Date }>): void {
     const now = Date.now();
     
-    // For Ireland variant: filter news to Ireland region only
+    // For Ireland variant: filter news to Ireland + UK region
     const filteredData = SITE_VARIANT === 'ireland' 
-      ? data.filter(d => d.lat >= 51.4 && d.lat <= 55.5 && d.lon >= -10.5 && d.lon <= -5.5)
+      ? data.filter(d => d.lat >= 48 && d.lat <= 62 && d.lon >= -12 && d.lon <= 2)
       : data;
     
     for (const d of filteredData) {
