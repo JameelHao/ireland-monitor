@@ -2657,40 +2657,52 @@ export class DeckGLMap {
 
   // Tech variant layers
   private createStartupHubsLayer(): ScatterplotLayer {
+    const isIreland = SITE_VARIANT === 'ireland';
     return new ScatterplotLayer({
       id: 'startup-hubs-layer',
       data: this.getVisibleStartupHubs(),
       getPosition: (d) => [d.lon, d.lat],
-      getRadius: 10000,
-      getFillColor: COLORS.startupHub,
-      radiusMinPixels: 5,
-      radiusMaxPixels: 12,
+      getRadius: isIreland ? 18000 : 10000,
+      getFillColor: isIreland ? [0, 209, 255, 235] : COLORS.startupHub,
+      radiusMinPixels: isIreland ? 9 : 5,
+      radiusMaxPixels: isIreland ? 18 : 12,
+      stroked: isIreland,
+      getLineColor: isIreland ? [255, 255, 255, 220] as [number, number, number, number] : [0, 0, 0, 0] as [number, number, number, number],
+      lineWidthMinPixels: isIreland ? 1.5 : 0,
       pickable: true,
     });
   }
 
   private createAcceleratorsLayer(): ScatterplotLayer {
+    const isIreland = SITE_VARIANT === 'ireland';
     return new ScatterplotLayer({
       id: 'accelerators-layer',
       data: this.getVisibleAccelerators(),
       getPosition: (d) => [d.lon, d.lat],
-      getRadius: 6000,
-      getFillColor: COLORS.accelerator,
-      radiusMinPixels: 3,
-      radiusMaxPixels: 8,
+      getRadius: isIreland ? 14000 : 6000,
+      getFillColor: isIreland ? [255, 179, 0, 235] : COLORS.accelerator,
+      radiusMinPixels: isIreland ? 8 : 3,
+      radiusMaxPixels: isIreland ? 16 : 8,
+      stroked: isIreland,
+      getLineColor: isIreland ? [255, 255, 255, 220] as [number, number, number, number] : [0, 0, 0, 0] as [number, number, number, number],
+      lineWidthMinPixels: isIreland ? 1.5 : 0,
       pickable: true,
     });
   }
 
   private createCloudRegionsLayer(): ScatterplotLayer {
+    const isIreland = SITE_VARIANT === 'ireland';
     return new ScatterplotLayer({
       id: 'cloud-regions-layer',
       data: this.getVisibleCloudRegions(),
       getPosition: (d) => [d.lon, d.lat],
-      getRadius: 12000,
-      getFillColor: COLORS.cloudRegion,
-      radiusMinPixels: 4,
-      radiusMaxPixels: 12,
+      getRadius: isIreland ? 20000 : 12000,
+      getFillColor: isIreland ? [153, 102, 255, 235] : COLORS.cloudRegion,
+      radiusMinPixels: isIreland ? 9 : 4,
+      radiusMaxPixels: isIreland ? 18 : 12,
+      stroked: isIreland,
+      getLineColor: isIreland ? [255, 255, 255, 220] as [number, number, number, number] : [0, 0, 0, 0] as [number, number, number, number],
+      lineWidthMinPixels: isIreland ? 1.5 : 0,
       pickable: true,
     });
   }
@@ -2764,18 +2776,22 @@ export class DeckGLMap {
     const layers: Layer[] = [];
     const zoom = this.maplibreMap?.getZoom() || 2;
 
+    const isIreland = SITE_VARIANT === 'ireland';
     layers.push(new ScatterplotLayer<MapTechHQCluster>({
       id: 'tech-hq-clusters-layer',
       data: this.techHQClusters,
       getPosition: d => [d.lon, d.lat],
-      getRadius: d => 10000 + d.count * 1500,
-      radiusMinPixels: 5,
-      radiusMaxPixels: 18,
+      getRadius: d => (isIreland ? 16000 : 10000) + d.count * (isIreland ? 2400 : 1500),
+      radiusMinPixels: isIreland ? 9 : 5,
+      radiusMaxPixels: isIreland ? 24 : 18,
       getFillColor: d => {
-        if (d.primaryType === 'faang') return [0, 220, 120, 200] as [number, number, number, number];
-        if (d.primaryType === 'unicorn') return [255, 100, 200, 180] as [number, number, number, number];
-        return [80, 160, 255, 180] as [number, number, number, number];
+        if (d.primaryType === 'faang') return isIreland ? [0, 230, 123, 235] as [number, number, number, number] : [0, 220, 120, 200] as [number, number, number, number];
+        if (d.primaryType === 'unicorn') return isIreland ? [255, 64, 170, 235] as [number, number, number, number] : [255, 100, 200, 180] as [number, number, number, number];
+        return isIreland ? [0, 140, 255, 235] as [number, number, number, number] : [80, 160, 255, 180] as [number, number, number, number];
       },
+      stroked: isIreland,
+      getLineColor: isIreland ? [255, 255, 255, 220] as [number, number, number, number] : [0, 0, 0, 0] as [number, number, number, number],
+      lineWidthMinPixels: isIreland ? 1.5 : 0,
       pickable: true,
       updateTriggers: { getRadius: this.lastSCZoom },
     }));
@@ -2799,7 +2815,8 @@ export class DeckGLMap {
       }));
     }
 
-    if (zoom >= 3) {
+    const labelZoomThreshold = SITE_VARIANT === 'ireland' ? 6 : 3;
+    if (zoom >= labelZoomThreshold) {
       const singles = this.techHQClusters.filter(c => c.count === 1);
       if (singles.length > 0) {
         layers.push(new TextLayer<MapTechHQCluster>({
