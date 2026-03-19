@@ -5360,13 +5360,14 @@ export class DeckGLMap {
             'fill-opacity': 0,
           },
         });
+        const disableCountryOverlay = SITE_VARIANT === 'ireland';
         this.maplibreMap.addLayer({
           id: 'country-hover-fill',
           type: 'fill',
           source: 'country-boundaries',
           paint: {
             'fill-color': '#3b82f6',
-            'fill-opacity': 0.06,
+            'fill-opacity': disableCountryOverlay ? 0 : 0.06,
           },
           filter: ['==', ['get', 'name'], ''],
         });
@@ -5376,7 +5377,7 @@ export class DeckGLMap {
           source: 'country-boundaries',
           paint: {
             'fill-color': '#3b82f6',
-            'fill-opacity': 0.12,
+            'fill-opacity': disableCountryOverlay ? 0 : 0.12,
           },
           filter: ['==', ['get', 'ISO3166-1-Alpha-2'], ''],
         });
@@ -5387,7 +5388,7 @@ export class DeckGLMap {
           paint: {
             'line-color': '#3b82f6',
             'line-width': 1.5,
-            'line-opacity': 0.5,
+            'line-opacity': disableCountryOverlay ? 0 : 0.5,
           },
           filter: ['==', ['get', 'ISO3166-1-Alpha-2'], ''],
         });
@@ -5440,6 +5441,9 @@ export class DeckGLMap {
   private countryPulseRaf: number | null = null;
 
   private getHighlightRestOpacity(): { fill: number; border: number } {
+    if (SITE_VARIANT === 'ireland') {
+      return { fill: 0, border: 0 };
+    }
     const theme = isLightMapTheme(getMapTheme(getMapProvider())) ? 'light' : 'dark';
     return { fill: theme === 'light' ? 0.18 : 0.12, border: 0.5 };
   }
@@ -5471,6 +5475,7 @@ export class DeckGLMap {
 
   private pulseCountryHighlight(): void {
     if (this.countryPulseRaf) { cancelAnimationFrame(this.countryPulseRaf); this.countryPulseRaf = null; }
+    if (SITE_VARIANT === 'ireland') return;
     const map = this.maplibreMap;
     if (!map) return;
     const rest = this.getHighlightRestOpacity();
@@ -5591,11 +5596,14 @@ export class DeckGLMap {
 
   private updateCountryLayerPaint(theme: 'dark' | 'light'): void {
     if (!this.maplibreMap || !this.countryGeoJsonLoaded) return;
-    const hoverOpacity = theme === 'light' ? 0.06 : 0.04;
-    const highlightOpacity = theme === 'light' ? 0.12 : 0.08;
+    const disableCountryOverlay = SITE_VARIANT === 'ireland';
+    const hoverOpacity = disableCountryOverlay ? 0 : (theme === 'light' ? 0.06 : 0.04);
+    const highlightOpacity = disableCountryOverlay ? 0 : (theme === 'light' ? 0.12 : 0.08);
+    const highlightBorderOpacity = disableCountryOverlay ? 0 : 0.5;
     try {
       this.maplibreMap.setPaintProperty('country-hover-fill', 'fill-opacity', hoverOpacity);
       this.maplibreMap.setPaintProperty('country-highlight-fill', 'fill-opacity', highlightOpacity);
+      this.maplibreMap.setPaintProperty('country-highlight-border', 'line-opacity', highlightBorderOpacity);
     } catch { /* layers may not be ready */ }
   }
 
