@@ -536,12 +536,36 @@ export class DeckGLMap {
 
     const attribution = document.createElement('div');
     attribution.className = 'map-attribution';
-    attribution.innerHTML = isHappyVariant
+    attribution.innerHTML = (isHappyVariant || SITE_VARIANT === 'ireland')
       ? '© <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
       : '© <a href="https://protomaps.com" target="_blank" rel="noopener">Protomaps</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
     wrapper.appendChild(attribution);
 
     this.container.appendChild(wrapper);
+  }
+
+  private getEffectiveBasemapSelection(): { provider: 'auto' | 'pmtiles' | 'openfreemap' | 'carto'; theme: string } {
+    if (SITE_VARIANT === 'ireland') {
+      // Force a cleaner, world-monitor-like visual style for Ireland variant
+      return { provider: 'carto', theme: 'voyager' };
+    }
+    const provider = isHappyVariant ? 'openfreemap' as const : getMapProvider();
+    const theme = getMapTheme(provider);
+    return { provider, theme };
+  }
+
+  private updateBasemapAttribution(provider: 'auto' | 'pmtiles' | 'openfreemap' | 'carto', isFallback = false): void {
+    const attr = this.container.querySelector('.map-attribution');
+    if (!attr) return;
+    if (isHappyVariant || provider === 'carto') {
+      attr.innerHTML = '© <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+      return;
+    }
+    if (isFallback || provider === 'openfreemap') {
+      attr.innerHTML = '© <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+      return;
+    }
+    attr.innerHTML = '© <a href="https://protomaps.com" target="_blank" rel="noopener">Protomaps</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
   }
 
   private initMapLibre(): void {
@@ -552,18 +576,18 @@ export class DeckGLMap {
       );
     }
 
-    const initialProvider = isHappyVariant ? 'openfreemap' as const : getMapProvider();
+    const { provider: initialProvider, theme: initialMapTheme } = this.getEffectiveBasemapSelection();
     if (initialProvider === 'pmtiles' || initialProvider === 'auto') registerPMTilesProtocol();
 
     const preset = VIEW_PRESETS[this.state.view];
-    const initialMapTheme = getMapTheme(initialProvider);
     const primaryStyle = isHappyVariant
       ? (getCurrentTheme() === 'light' ? HAPPY_LIGHT_STYLE : HAPPY_DARK_STYLE)
       : getStyleForProvider(initialProvider, initialMapTheme);
-    if (!isHappyVariant && typeof primaryStyle === 'string' && !primaryStyle.includes('pmtiles')) {
+    if (!isHappyVariant && typeof primaryStyle === 'string' && !primaryStyle.includes('pmtiles') && initialProvider !== 'carto') {
       this.usedFallbackStyle = true;
-      const attr = this.container.querySelector('.map-attribution');
-      if (attr) attr.innerHTML = '© <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+      this.updateBasemapAttribution(initialProvider, true);
+    } else {
+      this.updateBasemapAttribution(initialProvider, false);
     }
 
     const basemapEl = document.getElementById('deckgl-basemap');
@@ -600,8 +624,7 @@ export class DeckGLMap {
       this.usedFallbackStyle = true;
       const fallback = isLightMapTheme(initialMapTheme) ? FALLBACK_LIGHT_STYLE : FALLBACK_DARK_STYLE;
       console.warn(`[DeckGLMap] Primary basemap failed, recreating with fallback: ${fallback}`);
-      const attr = this.container.querySelector('.map-attribution');
-      if (attr) attr.innerHTML = '© <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+      this.updateBasemapAttribution(initialProvider, true);
       this.maplibreMap?.remove();
       const fallbackEl = document.getElementById('deckgl-basemap');
       if (!fallbackEl) return;
@@ -5478,13 +5501,13 @@ export class DeckGLMap {
 
   private switchBasemap(): void {
     if (!this.maplibreMap) return;
-    const provider = getMapProvider();
-    const mapTheme = getMapTheme(provider);
+    const { provider, theme: mapTheme } = this.getEffectiveBasemapSelection();
     const style = isHappyVariant
       ? (getCurrentTheme() === 'light' ? HAPPY_LIGHT_STYLE : HAPPY_DARK_STYLE)
       : (this.usedFallbackStyle && provider === 'auto')
         ? (isLightMapTheme(mapTheme) ? FALLBACK_LIGHT_STYLE : FALLBACK_DARK_STYLE)
         : getStyleForProvider(provider, mapTheme);
+    this.updateBasemapAttribution(provider, this.usedFallbackStyle && provider !== 'carto');
     this.maplibreMap.setStyle(style);
     this.countryGeoJsonLoaded = false;
     this.maplibreMap.once('style.load', () => {
@@ -5546,6 +5569,7 @@ export class DeckGLMap {
     this.usedFallbackStyle = true;
     const fallback = isLightMapTheme(mapTheme) ? FALLBACK_LIGHT_STYLE : FALLBACK_DARK_STYLE;
     console.warn(`[DeckGLMap] Basemap tiles failed, falling back to OpenFreeMap: ${fallback}`);
+    this.updateBasemapAttribution('openfreemap', true);
     this.maplibreMap.setStyle(fallback);
     this.countryGeoJsonLoaded = false;
     this.maplibreMap.once('style.load', () => {
@@ -5559,7 +5583,7 @@ export class DeckGLMap {
 
   public reloadBasemap(): void {
     if (!this.maplibreMap) return;
-    const provider = getMapProvider();
+    const { provider } = this.getEffectiveBasemapSelection();
     if (provider === 'pmtiles' || provider === 'auto') registerPMTilesProtocol();
     this.usedFallbackStyle = false;
     this.switchBasemap();
@@ -5567,8 +5591,8 @@ export class DeckGLMap {
 
   private updateCountryLayerPaint(theme: 'dark' | 'light'): void {
     if (!this.maplibreMap || !this.countryGeoJsonLoaded) return;
-    const hoverOpacity = theme === 'light' ? 0.10 : 0.06;
-    const highlightOpacity = theme === 'light' ? 0.18 : 0.12;
+    const hoverOpacity = theme === 'light' ? 0.06 : 0.04;
+    const highlightOpacity = theme === 'light' ? 0.12 : 0.08;
     try {
       this.maplibreMap.setPaintProperty('country-hover-fill', 'fill-opacity', hoverOpacity);
       this.maplibreMap.setPaintProperty('country-highlight-fill', 'fill-opacity', highlightOpacity);
