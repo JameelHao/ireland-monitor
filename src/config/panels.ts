@@ -813,6 +813,9 @@ const COMMODITY_MOBILE_MAP_LAYERS: MapLayers = {
 // ============================================
 // VARIANT-AWARE EXPORTS
 // ============================================
+// Import Ireland variant config
+import { VARIANT_CONFIG as IRELAND_VARIANT_CONFIG } from './variants/ireland';
+
 export const DEFAULT_PANELS = SITE_VARIANT === 'happy' 
   ? HAPPY_PANELS 
   : SITE_VARIANT === 'tech' 
@@ -821,10 +824,9 @@ export const DEFAULT_PANELS = SITE_VARIANT === 'happy'
       ? FINANCE_PANELS 
       : SITE_VARIANT === 'commodity'
         ? COMMODITY_PANELS
-        : FULL_PANELS;
-
-// Import Ireland variant layers
-import { VARIANT_CONFIG as IRELAND_VARIANT_CONFIG } from './variants/ireland';
+        : SITE_VARIANT === 'ireland'
+          ? IRELAND_VARIANT_CONFIG.panels
+          : FULL_PANELS;
 
 export const DEFAULT_MAP_LAYERS = SITE_VARIANT === 'happy' 
   ? HAPPY_MAP_LAYERS 
