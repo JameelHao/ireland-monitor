@@ -103,9 +103,20 @@ export const FEEDS: Record<string, Feed[]> = {
 
   // 爱尔兰大厂招聘
   ieJobs: [
-    { name: 'Irish Tech Jobs', url: rss('https://news.google.com/rss/search?q=(Ireland+OR+Dublin)+(Google+OR+Meta+OR+Microsoft+OR+Amazon+OR+Apple+OR+Intel)+hiring+OR+jobs+when:7d&hl=en-IE&gl=IE&ceid=IE:en') },
-    { name: 'LinkedIn Ireland Hiring', url: rss('https://news.google.com/rss/search?q=site:linkedin.com+Ireland+tech+hiring+when:7d&hl=en-IE&gl=IE&ceid=IE:en') },
-    { name: 'IrishJobs Tech', url: rss('https://news.google.com/rss/search?q=site:irishjobs.ie+technology+jobs+when:7d&hl=en-IE&gl=IE&ceid=IE:en') },
+    // LinkedIn hiring signal (news-indexed)
+    { name: 'LinkedIn Ireland Tech Hiring', url: rss('https://news.google.com/rss/search?q=site:linkedin.com/jobs+(Ireland+OR+Dublin)+(Google+OR+AWS+OR+Amazon+OR+Meta+OR+Microsoft+OR+OpenAI+OR+Anthropic+OR+xAI+OR+Azure)+when:7d&hl=en-IE&gl=IE&ceid=IE:en') },
+
+    // Big-tech hiring in Ireland (broad)
+    { name: 'Ireland Big Tech Hiring', url: rss('https://news.google.com/rss/search?q=(Ireland+OR+Dublin)+(Google+OR+AWS+OR+Amazon+OR+Meta+OR+Microsoft+OR+OpenAI+OR+Anthropic+OR+xAI+OR+Azure)+("hiring"+OR+"job"+OR+"careers")+when:7d&hl=en-IE&gl=IE&ceid=IE:en') },
+
+    // Company careers pages (via Google News index)
+    { name: 'Google Careers Ireland', url: rss('https://news.google.com/rss/search?q=site:careers.google.com+(Dublin+OR+Ireland)+(software+OR+ai+OR+cloud)+when:14d&hl=en-IE&gl=IE&ceid=IE:en') },
+    { name: 'AWS Jobs Ireland', url: rss('https://news.google.com/rss/search?q=site:amazon.jobs+(Dublin+OR+Ireland)+("AWS"+OR+"Amazon+Web+Services")+when:14d&hl=en-IE&gl=IE&ceid=IE:en') },
+    { name: 'Meta Careers Ireland', url: rss('https://news.google.com/rss/search?q=site:metacareers.com+(Dublin+OR+Ireland)+(engineering+OR+ai)+when:14d&hl=en-IE&gl=IE&ceid=IE:en') },
+    { name: 'Microsoft Careers Ireland', url: rss('https://news.google.com/rss/search?q=site:jobs.careers.microsoft.com+(Dublin+OR+Ireland)+(azure+OR+ai+OR+cloud)+when:14d&hl=en-IE&gl=IE&ceid=IE:en') },
+
+    // Local boards as fallback signal
+    { name: 'IrishJobs Tech', url: rss('https://news.google.com/rss/search?q=site:irishjobs.ie+technology+jobs+Ireland+when:7d&hl=en-IE&gl=IE&ceid=IE:en') },
   ],
 };
 
