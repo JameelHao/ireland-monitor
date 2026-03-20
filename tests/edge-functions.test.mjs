@@ -60,6 +60,7 @@ describe('Legacy api/*.js endpoint allowlist', () => {
   const ALLOWED_LEGACY_ENDPOINTS = new Set([
     'ais-snapshot.js',
     'bootstrap.js',
+    'brief.js',
     'cache-purge.js',
     'contact.js',
     'download.js',
