@@ -14770,8 +14770,8 @@ a.prediction-link:hover {
   bottom: 10px;
   left: 10px;
   z-index: 100;
-  background: #0f172a;
-  border: 1px solid #475569;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-strong);
   border-radius: 6px;
   max-width: 260px;
   max-height: 50vh;
@@ -14786,20 +14786,20 @@ a.prediction-link:hover {
   justify-content: space-between;
   align-items: center;
   padding: 6px 10px;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid var(--border);
   font-size: 10px;
   font-weight: bold;
-  color: #cbd5e1;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 1px;
   flex-shrink: 0;
-  background: #111827;
+  background: var(--surface);
 }
 
 .deckgl-layer-toggles .toggle-collapse {
   background: none;
   border: none;
-  color: #cbd5e1;
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: 10px;
 }
@@ -14824,20 +14824,20 @@ a.prediction-link:hover {
   width: calc(100% - 16px);
   margin: 4px 8px;
   padding: 4px 8px;
-  background: #111827;
-  border: 1px solid #475569;
+  background: var(--input-bg);
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
-  color: #e2e8f0;
+  color: var(--text);
   font-size: 11px;
   font-family: inherit;
   outline: none;
 }
 .deckgl-layer-toggles .layer-search::placeholder {
-  color: #94a3b8;
+  color: var(--text-dim);
 }
 .deckgl-layer-toggles .layer-search:focus {
-  border-color: #64748b;
-  background: #1e293b;
+  border-color: var(--text-dim);
+  background: var(--surface-hover);
 }
 
 .deckgl-layer-toggles .layer-toggle {
@@ -14847,18 +14847,18 @@ a.prediction-link:hover {
   padding: 5px 8px;
   cursor: pointer;
   border-radius: 3px;
-  border: 1px solid #334155;
-  background: #0b1220;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
   transition: background 0.15s ease, border-color 0.15s ease;
   position: relative;
   font-size: 10px;
   text-transform: uppercase;
-  color: #e2e8f0;
+  color: var(--text);
 }
 
 .deckgl-layer-toggles .layer-toggle:hover {
-  background: #1e293b;
-  border-color: #64748b;
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
 }
 
 .deckgl-layer-toggles .layer-toggle.zoom-hidden .toggle-label {
