@@ -1,6 +1,6 @@
 import { beforeEach, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { ALERT_KEYWORD_LIMIT } from '@/types/alert';
+import { ALERT_HISTORY_LIMIT, ALERT_KEYWORD_LIMIT } from '@/types/alert';
 import { AlertStorage } from '@/services/alert-storage';
 
 class MemoryStorage {
@@ -76,5 +76,30 @@ describe('alert-storage', () => {
     const pref = service.getPreferences();
     assert.equal(pref.notifySound, false);
     assert.equal(pref.notifyBrowser, true);
+  });
+
+  it('append alert and mark read', () => {
+    const item = service.appendAlert({
+      article: { id: 'a1', title: 'TCD raises AI funding', url: 'https://example.com/a1', source: 'RTE' },
+      keywords: ['TCD', 'funding'],
+      timestamp: Date.now(),
+    });
+
+    assert.equal(service.getAlerts().length, 1);
+    assert.equal(service.getAlerts()[0]?.read, false);
+
+    service.markAlertRead(item.id);
+    assert.equal(service.getAlerts()[0]?.read, true);
+  });
+
+  it('enforces alert history limit', () => {
+    for (let i = 0; i < ALERT_HISTORY_LIMIT + 5; i += 1) {
+      service.appendAlert({
+        article: { id: `a-${i}`, title: `title-${i}`, url: `https://example.com/${i}`, source: 'source' },
+        keywords: ['kw'],
+        timestamp: Date.now(),
+      });
+    }
+    assert.equal(service.getAlerts().length, ALERT_HISTORY_LIMIT);
   });
 });

@@ -1,4 +1,12 @@
-import { ALERT_KEYWORD_LIMIT, DEFAULT_ALERT_PREFERENCE, type AlertKeyword, type AlertPreference } from '@/types/alert';
+import {
+  ALERT_HISTORY_LIMIT,
+  ALERT_KEYWORD_LIMIT,
+  DEFAULT_ALERT_PREFERENCE,
+  type AlertEventDetail,
+  type AlertItem,
+  type AlertKeyword,
+  type AlertPreference,
+} from '@/types/alert';
 
 const STORAGE_KEY = 'irishtech-alerts';
 
@@ -22,7 +30,7 @@ function safeRandomId(): string {
 }
 
 function parsePreference(raw: string | null): AlertPreference {
-  if (!raw) return { ...DEFAULT_ALERT_PREFERENCE, keywords: [] };
+  if (!raw) return { ...DEFAULT_ALERT_PREFERENCE, keywords: [], alerts: [] };
   try {
     const parsed = JSON.parse(raw) as Partial<AlertPreference>;
     const keywords = Array.isArray(parsed.keywords)
@@ -40,20 +48,42 @@ function parsePreference(raw: string | null): AlertPreference {
         .filter((item): item is AlertKeyword => !!item)
       : [];
 
+    const alerts = Array.isArray(parsed.alerts)
+      ? parsed.alerts
+        .map((item) => {
+          if (!item?.article || typeof item.article.title !== 'string' || typeof item.article.url !== 'string') return null;
+          return {
+            id: typeof item.id === 'string' && item.id ? item.id : safeRandomId(),
+            article: {
+              id: typeof item.article.id === 'string' && item.article.id ? item.article.id : safeRandomId(),
+              title: item.article.title,
+              url: item.article.url,
+              source: typeof item.article.source === 'string' ? item.article.source : 'Unknown',
+            },
+            keywords: Array.isArray(item.keywords) ? item.keywords.filter((kw) => typeof kw === 'string') : [],
+            timestamp: Number.isFinite(item.timestamp) ? Number(item.timestamp) : Date.now(),
+            read: item.read === true,
+          } as AlertItem;
+        })
+        .filter((item): item is AlertItem => !!item)
+        .slice(0, ALERT_HISTORY_LIMIT)
+      : [];
+
     return {
       keywords,
+      alerts,
       notifySound: parsed.notifySound !== false,
       notifyBrowser: parsed.notifyBrowser !== false,
     };
   } catch {
-    return { ...DEFAULT_ALERT_PREFERENCE, keywords: [] };
+    return { ...DEFAULT_ALERT_PREFERENCE, keywords: [], alerts: [] };
   }
 }
 
 export class AlertStorage {
   public getPreferences(): AlertPreference {
     if (!canUseLocalStorage()) {
-      return { ...DEFAULT_ALERT_PREFERENCE, keywords: [] };
+      return { ...DEFAULT_ALERT_PREFERENCE, keywords: [], alerts: [] };
     }
     return parsePreference(window.localStorage.getItem(STORAGE_KEY));
   }
@@ -118,6 +148,42 @@ export class AlertStorage {
       notifySound: partial.notifySound,
       notifyBrowser: partial.notifyBrowser,
     });
+  }
+
+  public getAlerts(): AlertItem[] {
+    return this.getPreferences().alerts;
+  }
+
+  public appendAlert(detail: AlertEventDetail): AlertItem {
+    const current = this.getPreferences();
+    const item: AlertItem = {
+      id: safeRandomId(),
+      article: {
+        id: detail.article.id || safeRandomId(),
+        title: detail.article.title,
+        url: detail.article.url,
+        source: detail.article.source || 'Unknown',
+      },
+      keywords: detail.keywords,
+      timestamp: Number.isFinite(detail.timestamp) ? detail.timestamp : Date.now(),
+      read: false,
+    };
+
+    const alerts = [item, ...current.alerts].slice(0, ALERT_HISTORY_LIMIT);
+    this.save({ ...current, alerts });
+    return item;
+  }
+
+  public markAlertRead(id: string): void {
+    const current = this.getPreferences();
+    const alerts = current.alerts.map((item) => (item.id === id ? { ...item, read: true } : item));
+    this.save({ ...current, alerts });
+  }
+
+  public markAllRead(): void {
+    const current = this.getPreferences();
+    const alerts = current.alerts.map((item) => ({ ...item, read: true }));
+    this.save({ ...current, alerts });
   }
 
   private save(preference: AlertPreference): void {
