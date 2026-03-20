@@ -16,7 +16,7 @@ import { getAiFlowSettings, subscribeAiFlowChange, isHeadlineMemoryEnabled } fro
 import { startLearning } from '@/services/country-instability';
 import { loadFromStorage, parseMapUrlState, saveToStorage, isMobileDevice } from '@/utils';
 import type { ParsedMapUrlState } from '@/utils';
-import { SignalModal, IntelligenceGapBadge, BreakingNewsBanner } from '@/components';
+import { SignalModal, IntelligenceGapBadge, BreakingNewsBanner, MarketTicker } from '@/components';
 import { initBreakingNewsAlerts, destroyBreakingNewsAlerts } from '@/services/breaking-news-alerts';
 import type { ServiceStatusPanel } from '@/components/ServiceStatusPanel';
 import type { StablecoinPanel } from '@/components/StablecoinPanel';
@@ -71,6 +71,7 @@ export class App {
   private desktopUpdater: DesktopUpdater;
 
   private modules: { destroy(): void }[] = [];
+  private marketTicker: MarketTicker | null = null;
   private unsubAiFlow: (() => void) | null = null;
   private visiblePanelPrimed = new Set<string>();
   private visiblePanelPrimeRaf: number | null = null;
@@ -562,6 +563,11 @@ export class App {
 
     // Phase 1: Layout (creates map + panels — they'll find hydrated data)
     this.panelLayout.init();
+    const tickerContainer = document.getElementById('marketTickerContainer');
+    if (tickerContainer) {
+      this.marketTicker = new MarketTicker(tickerContainer, { symbols: ['BTC', 'ETH', 'NDX'] });
+      this.marketTicker.mount();
+    }
     showProBanner(this.state.container);
 
     const mobileGeoCoords = await geoCoordsPromise;
@@ -707,6 +713,8 @@ export class App {
 
     // Clean up subscriptions, map, AIS, and breaking news
     this.unsubAiFlow?.();
+    this.marketTicker?.destroy();
+    this.marketTicker = null;
     this.state.breakingBanner?.destroy();
     destroyBreakingNewsAlerts();
     this.state.map?.destroy();
