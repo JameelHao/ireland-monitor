@@ -318,6 +318,7 @@ export class PanelLayoutManager implements AppModule {
       </nav>
       <div class="market-ticker-container" id="marketTickerContainer"></div>
       <div class="daily-brief-container" id="dailyBriefContainer"></div>
+      <div class="alert-panel-container" id="alertPanelContainer"></div>
       ${showRegionSelector ? this.renderRegionSheet() : ''}
       <div class="main-content">
         <div class="map-section" id="mapSection">

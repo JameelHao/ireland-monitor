@@ -16,7 +16,7 @@ import { getAiFlowSettings, subscribeAiFlowChange, isHeadlineMemoryEnabled } fro
 import { startLearning } from '@/services/country-instability';
 import { loadFromStorage, parseMapUrlState, saveToStorage, isMobileDevice } from '@/utils';
 import type { ParsedMapUrlState } from '@/utils';
-import { SignalModal, IntelligenceGapBadge, BreakingNewsBanner, MarketTicker, DailyBrief } from '@/components';
+import { SignalModal, IntelligenceGapBadge, BreakingNewsBanner, MarketTicker, DailyBrief, AlertPanel } from '@/components';
 import { initBreakingNewsAlerts, destroyBreakingNewsAlerts } from '@/services/breaking-news-alerts';
 import type { ServiceStatusPanel } from '@/components/ServiceStatusPanel';
 import type { StablecoinPanel } from '@/components/StablecoinPanel';
@@ -73,6 +73,7 @@ export class App {
   private modules: { destroy(): void }[] = [];
   private marketTicker: MarketTicker | null = null;
   private dailyBrief: DailyBrief | null = null;
+  private alertPanel: AlertPanel | null = null;
   private unsubAiFlow: (() => void) | null = null;
   private visiblePanelPrimed = new Set<string>();
   private visiblePanelPrimeRaf: number | null = null;
@@ -576,6 +577,14 @@ export class App {
       this.dailyBrief = new DailyBrief(briefContainer, briefTrigger);
       this.dailyBrief.mount();
     }
+
+    const alertContainer = document.getElementById('alertPanelContainer');
+    const alertTrigger = document.getElementById('alertTriggerBtn');
+    const alertBadge = document.getElementById('alertBadge');
+    if (alertContainer && alertTrigger && alertBadge) {
+      this.alertPanel = new AlertPanel(alertContainer, alertTrigger, alertBadge);
+      this.alertPanel.mount();
+    }
     showProBanner(this.state.container);
 
     const mobileGeoCoords = await geoCoordsPromise;
@@ -725,6 +734,8 @@ export class App {
     this.marketTicker = null;
     this.dailyBrief?.destroy();
     this.dailyBrief = null;
+    this.alertPanel?.destroy();
+    this.alertPanel = null;
     this.state.breakingBanner?.destroy();
     destroyBreakingNewsAlerts();
     this.state.map?.destroy();
