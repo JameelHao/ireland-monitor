@@ -315,6 +315,7 @@ export class PanelLayoutManager implements AppModule {
         </div>
         <div class="mobile-menu-version">v${__APP_VERSION__}</div>
       </nav>
+      <div class="market-ticker-container" id="marketTickerContainer"></div>
       ${showRegionSelector ? this.renderRegionSheet() : ''}
       <div class="main-content">
         <div class="map-section" id="mapSection">

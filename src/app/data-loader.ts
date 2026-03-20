@@ -2,7 +2,7 @@ import type { AppContext, AppModule } from '@/app/app-context';
 import { getRpcBaseUrl } from '@/services/rpc-client';
 import { enqueuePanelCall } from '@/app/pending-panel-data';
 import type { NewsItem, MapLayers, SocialUnrestEvent } from '@/types';
-import type { MarketData } from '@/types';
+import type { MarketData, CryptoData } from '@/types';
 import type { TimeRange } from '@/components';
 import {
   FEEDS,
@@ -1171,6 +1171,10 @@ export class DataLoaderManager implements AppModule {
     }
   }
 
+  private emitMarketTickerUpdate(payload: { markets?: MarketData[]; crypto?: CryptoData[] }): void {
+    window.dispatchEvent(new CustomEvent('market-data-updated', { detail: payload }));
+  }
+
   async loadMarkets(): Promise<void> {
     try {
       const customEntries = getMarketWatchlistEntries();
@@ -1217,6 +1221,8 @@ export class DataLoaderManager implements AppModule {
         this.ctx.latestMarkets = stocksResult.data;
         marketsPanel?.renderMarkets(stocksResult.data, stocksResult.rateLimited);
       }
+
+      this.emitMarketTickerUpdate({ markets: this.ctx.latestMarkets });
 
       const finnhubConfigMsg = 'FINNHUB_API_KEY not configured — add in Settings';
 
@@ -1324,6 +1330,7 @@ export class DataLoaderManager implements AppModule {
       const cryptoPanel = this.ctx.panels['crypto'] as CryptoPanel | undefined;
       const crypto = await fetchCrypto();
       cryptoPanel?.renderCrypto(crypto);
+      this.emitMarketTickerUpdate({ markets: this.ctx.latestMarkets, crypto });
       this.ctx.statusPanel?.updateApi('CoinGecko', { status: crypto.length > 0 ? 'ok' : 'error' });
     } catch {
       this.ctx.statusPanel?.updateApi('CoinGecko', { status: 'error' });
