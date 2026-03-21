@@ -1,0 +1,163 @@
+/**
+ * News Priority Service
+ *
+ * Determines the priority of news articles based on keywords and scoring.
+ * Used by BreakingNewsTickerPanel to filter and display high-priority news.
+ */
+
+import type { NewsItem } from '@/types';
+
+/**
+ * News priority levels
+ */
+export enum NewsPriority {
+  P0 = 'BREAKING', // Funding/Acquisition/IPO
+  P1 = 'HOT', // University research/Summit/Big tech
+  P2 = 'NEW', // Regular news (not displayed in ticker)
+}
+
+/**
+ * Extended NewsItem with priority metadata
+ */
+export interface PriorityArticle extends NewsItem {
+  priority: NewsPriority;
+  priorityScore: number;
+}
+
+/**
+ * P0 keywords - highest priority (funding, M&A, IPO)
+ */
+const P0_KEYWORDS = [
+  'series a',
+  'series b',
+  'series c',
+  'series d',
+  'funding round',
+  'raises €',
+  'raises $',
+  'raised €',
+  'raised $',
+  'secures €',
+  'secures $',
+  'acquisition',
+  'acquires',
+  'acquired',
+  'm&a',
+  'merger',
+  'ipo',
+  'goes public',
+  'public offering',
+  'enterprise ireland',
+  'ndrc',
+  'venture capital',
+  'seed funding',
+  'pre-seed',
+];
+
+/**
+ * P1 keywords - high priority (research, summits, big tech)
+ */
+const P1_KEYWORDS = [
+  'tcd',
+  'trinity college',
+  'ucd',
+  'university college dublin',
+  'dcu',
+  'nuig',
+  'sfi',
+  'science foundation ireland',
+  'dublin tech summit',
+  'web summit',
+  'collision',
+  'google dublin',
+  'meta dublin',
+  'apple ireland',
+  'microsoft ireland',
+  'amazon ireland',
+  'intel ireland',
+  'breakthrough',
+  'research grant',
+  'innovation hub',
+  'tech hub',
+  'startup hub',
+];
+
+/**
+ * Determine the priority of a news article based on keywords
+ *
+ * @param article - The news article to evaluate
+ * @returns The priority level (P0, P1, or P2)
+ */
+export function getNewsPriority(article: NewsItem): NewsPriority {
+  const text = article.title.toLowerCase();
+
+  // Check P0 keywords first (highest priority)
+  if (P0_KEYWORDS.some((kw) => text.includes(kw))) {
+    return NewsPriority.P0;
+  }
+
+  // Check P1 keywords
+  if (P1_KEYWORDS.some((kw) => text.includes(kw))) {
+    return NewsPriority.P1;
+  }
+
+  return NewsPriority.P2;
+}
+
+/**
+ * Calculate a priority score for sorting articles
+ * Higher scores appear first in the ticker
+ *
+ * @param article - The news article to score
+ * @returns Numeric score (higher = more important)
+ */
+export function getPriorityScore(article: NewsItem): number {
+  let score = 0;
+  const text = article.title.toLowerCase();
+
+  // Base score by priority
+  const priority = getNewsPriority(article);
+  if (priority === NewsPriority.P0) {
+    score += 1000;
+  } else if (priority === NewsPriority.P1) {
+    score += 500;
+  }
+
+  // Bonus for funding amounts (€Xm or $Xm)
+  const moneyMatch = text.match(/[€$](\d+(?:\.\d+)?)\s*(?:m|million)/i);
+  if (moneyMatch) {
+    const amount = parseFloat(moneyMatch[1]);
+    score += amount * 10;
+  }
+
+  // Bonus for recent articles (decay over 24 hours)
+  const pubDate = article.pubDate ? new Date(article.pubDate).getTime() : Date.now();
+  const ageMinutes = (Date.now() - pubDate) / 60000;
+  score += Math.max(0, 1000 - ageMinutes);
+
+  return score;
+}
+
+/**
+ * Filter and sort high-priority news articles
+ *
+ * @param articles - Array of news articles to filter
+ * @param limit - Maximum number of articles to return (default: 10)
+ * @returns Filtered and sorted array of high-priority articles
+ */
+export function filterHighPriorityNews(
+  articles: NewsItem[],
+  limit = 10,
+): PriorityArticle[] {
+  return articles
+    .map((article) => ({
+      ...article,
+      priority: getNewsPriority(article),
+      priorityScore: getPriorityScore(article),
+    }))
+    .filter(
+      (a) => a.priority === NewsPriority.P0 || a.priority === NewsPriority.P1,
+    )
+    .sort((a, b) => b.priorityScore - a.priorityScore)
+    .slice(0, limit);
+}
