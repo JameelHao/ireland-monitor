@@ -55,6 +55,21 @@ const P0_KEYWORDS = [
 ];
 
 /**
+ * P0 keywords for semiconductor industry (major investments, fab expansion)
+ * These require higher thresholds due to industry significance
+ */
+const SEMICONDUCTOR_P0_KEYWORDS = [
+  'fab expansion',
+  'chip plant',
+  'wafer fab',
+  'eu chips act grant',
+  'chips act ireland',
+  'chips act allocation',
+  'billion semiconductor',
+  'billion chip',
+];
+
+/**
  * P1 keywords - high priority (research, summits, big tech)
  */
 const P1_KEYWORDS = [
@@ -88,6 +103,30 @@ const P1_KEYWORDS = [
 ];
 
 /**
+ * Check if article mentions large semiconductor investment (€500M+ or €1B+)
+ */
+function hasSemiconductorInvestment(text: string): boolean {
+  // Check for Intel/semiconductor investment with large amounts
+  const hasIntelOrChip = /intel|semiconductor|chip|fab/i.test(text);
+  if (!hasIntelOrChip) return false;
+
+  // Match €X billion/bn/b or €X million/m
+  const billionMatch = text.match(/€\s*(\d+(?:\.\d+)?)\s*(?:billion|bn|b)\b/i);
+  if (billionMatch && billionMatch[1]) {
+    const amount = parseFloat(billionMatch[1]);
+    if (amount >= 1) return true; // €1B+
+  }
+
+  const millionMatch = text.match(/€\s*(\d+(?:\.\d+)?)\s*(?:million|m)\b/i);
+  if (millionMatch && millionMatch[1]) {
+    const amount = parseFloat(millionMatch[1]);
+    if (amount >= 500) return true; // €500M+
+  }
+
+  return false;
+}
+
+/**
  * Determine the priority of a news article based on keywords
  *
  * @param article - The news article to evaluate
@@ -98,6 +137,16 @@ export function getNewsPriority(article: NewsItem): NewsPriority {
 
   // Check P0 keywords first (highest priority)
   if (P0_KEYWORDS.some((kw) => text.includes(kw))) {
+    return NewsPriority.P0;
+  }
+
+  // Check semiconductor P0 keywords (fab expansion, EU Chips Act grants)
+  if (SEMICONDUCTOR_P0_KEYWORDS.some((kw) => text.includes(kw))) {
+    return NewsPriority.P0;
+  }
+
+  // Check for large semiconductor investment (€500M+ or €1B+)
+  if (hasSemiconductorInvestment(text)) {
     return NewsPriority.P0;
   }
 
@@ -126,6 +175,25 @@ export function getPriorityScore(article: NewsItem): number {
     score += 1000;
   } else if (priority === NewsPriority.P1) {
     score += 500;
+  }
+
+  // ====== Semiconductor company boost ======
+  if (text.includes('intel ireland') || text.includes('intel leixlip')) {
+    score += 200;
+  }
+  if (text.includes('analog devices')) {
+    score += 150;
+  }
+  if (text.includes('eu chips act')) {
+    score += 180;
+  }
+
+  // ====== Investment amount boost ======
+  // Bonus for billions (€Xbn)
+  const billionMatch = text.match(/€\s*(\d+(?:\.\d+)?)\s*(?:billion|bn|b)\b/i);
+  if (billionMatch && billionMatch[1]) {
+    const billions = parseFloat(billionMatch[1]);
+    score += billions * 100; // €1B = +100 points
   }
 
   // Bonus for funding amounts (€Xm or $Xm)
