@@ -189,6 +189,7 @@ const IRELAND_MAP_LAYERS: MapLayers = {
   accelerators: true, // 加速器
   techHQs: true,      // 科技公司总部
   techEvents: true,   // 科技活动
+  semiconductorHubs: true, // 半导体设施
   stockExchanges: false,
   financialCenters: false,
   centralBanks: false,
