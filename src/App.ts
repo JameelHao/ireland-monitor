@@ -566,10 +566,13 @@ export class App {
 
     // Phase 1: Layout (creates map + panels — they'll find hydrated data)
     this.panelLayout.init();
-    const tickerContainer = document.getElementById('marketTickerContainer');
-    if (tickerContainer) {
-      this.marketTicker = new MarketTicker(tickerContainer, { symbols: ['BTC', 'ETH', 'NDX'] });
-      this.marketTicker.mount();
+    // Market ticker disabled for ireland variant (IrishTech Daily focuses on local tech news)
+    if (SITE_VARIANT !== 'ireland') {
+      const tickerContainer = document.getElementById('marketTickerContainer');
+      if (tickerContainer) {
+        this.marketTicker = new MarketTicker(tickerContainer, { symbols: ['BTC', 'ETH', 'NDX'] });
+        this.marketTicker.mount();
+      }
     }
 
     const briefContainer = document.getElementById('dailyBriefContainer');
