@@ -8,6 +8,7 @@ import type { Layer, LayersList, PickingInfo } from '@deck.gl/core';
 import { GeoJsonLayer, ScatterplotLayer, PathLayer, IconLayer, TextLayer, PolygonLayer } from '@deck.gl/layers';
 import maplibregl from 'maplibre-gl';
 import { registerPMTilesProtocol, FALLBACK_DARK_STYLE, FALLBACK_LIGHT_STYLE, getMapProvider, getMapTheme, getStyleForProvider, isLightMapTheme } from '@/config/basemap';
+import { IRELAND_SEMICONDUCTOR_HUBS } from '@/data/semiconductor-hubs';
 import Supercluster from 'supercluster';
 import type {
   MapLayers,
@@ -1542,6 +1543,9 @@ export class DeckGLMap {
       if (mapLayers.techEvents && this.techEvents.length > 0) {
         layers.push(...this.createTechEventClusterLayers());
       }
+      if (mapLayers.semiconductorHubs) {
+        layers.push(this.createSemiconductorHubsLayer());
+      }
     }
 
     const irelandTechFallback = this.createIrelandTechFallbackLayer(mapLayers);
@@ -2695,6 +2699,26 @@ export class DeckGLMap {
     });
   }
 
+  /**
+   * Create semiconductor hubs layer for Ireland variant
+   * Shows major semiconductor facilities (Intel, Analog Devices, etc.)
+   */
+  private createSemiconductorHubsLayer(): ScatterplotLayer {
+    return new ScatterplotLayer({
+      id: 'semiconductor-hubs-layer',
+      data: IRELAND_SEMICONDUCTOR_HUBS,
+      getPosition: (d) => [d.lng, d.lat],
+      getRadius: 22000,
+      getFillColor: [138, 43, 226, 235], // Purple
+      radiusMinPixels: 10,
+      radiusMaxPixels: 20,
+      stroked: true,
+      getLineColor: [255, 255, 255, 220] as [number, number, number, number],
+      lineWidthMinPixels: 2,
+      pickable: true,
+    });
+  }
+
   private createCloudRegionsLayer(): ScatterplotLayer {
     const isIreland = SITE_VARIANT === 'ireland';
     return new ScatterplotLayer({
@@ -3517,6 +3541,8 @@ export class DeckGLMap {
         return { html: `<div class="deckgl-tooltip"><strong>${text(obj.name)}</strong><br/>${text(obj.city)}</div>` };
       case 'cloud-regions-layer':
         return { html: `<div class="deckgl-tooltip"><strong>${text(obj.provider)}</strong><br/>${text(obj.region)}</div>` };
+      case 'semiconductor-hubs-layer':
+        return { html: `<div class="deckgl-tooltip"><strong>${text(obj.name)}</strong><br/>${text(obj.company)}<br/>${text(obj.business)}</div>` };
       case 'tech-events-layer':
         return { html: `<div class="deckgl-tooltip"><strong>${text(obj.title)}</strong><br/>${text(obj.location)}</div>` };
       case 'irradiators-layer':
@@ -3869,6 +3895,7 @@ export class DeckGLMap {
       'tech-hqs-layer': 'techHQ',
       'accelerators-layer': 'accelerator',
       'cloud-regions-layer': 'cloudRegion',
+      'semiconductor-hubs-layer': 'semiconductorHub',
       'tech-events-layer': 'techEvent',
       'apt-groups-layer': 'apt',
       'minerals-layer': 'mineral',
