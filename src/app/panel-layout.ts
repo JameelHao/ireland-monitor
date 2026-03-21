@@ -317,7 +317,7 @@ export class PanelLayoutManager implements AppModule {
         </div>
         <div class="mobile-menu-version">v${__APP_VERSION__}</div>
       </nav>
-      <div class="market-ticker-container" id="marketTickerContainer"></div>
+      ${SITE_VARIANT !== 'ireland' ? '<div class="market-ticker-container" id="marketTickerContainer"></div>' : ''}
       <div class="daily-brief-container" id="dailyBriefContainer"></div>
       <div class="alert-panel-container" id="alertPanelContainer"></div>
       ${showRegionSelector ? this.renderRegionSheet() : ''}
