@@ -125,7 +125,7 @@ export function getPriorityScore(article: NewsItem): number {
 
   // Bonus for funding amounts (€Xm or $Xm)
   const moneyMatch = text.match(/[€$](\d+(?:\.\d+)?)\s*(?:m|million)/i);
-  if (moneyMatch) {
+  if (moneyMatch && moneyMatch[1]) {
     const amount = parseFloat(moneyMatch[1]);
     score += amount * 10;
   }
