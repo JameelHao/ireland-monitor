@@ -81,16 +81,37 @@ describe('news-priority', () => {
       assert.equal(getNewsPriority(article), NewsPriority.P1);
     });
 
-    it('returns P1 for EU Chips Act news', () => {
+    it('returns P0 for EU Chips Act grants', () => {
       const article = createNewsItem(
-        'EU Chips Act allocates €43 billion for European semiconductor industry',
+        'EU Chips Act grant allocates €1.2 billion to Ireland semiconductor projects',
+      );
+      assert.equal(getNewsPriority(article), NewsPriority.P0);
+    });
+
+    it('returns P0 for Intel large investment (€1B+)', () => {
+      const article = createNewsItem(
+        'Intel announces €4 billion expansion at Leixlip facility',
+      );
+      assert.equal(getNewsPriority(article), NewsPriority.P0);
+    });
+
+    it('returns P0 for fab expansion', () => {
+      const article = createNewsItem(
+        'Intel fab expansion in Ireland to create 3000 jobs',
+      );
+      assert.equal(getNewsPriority(article), NewsPriority.P0);
+    });
+
+    it('returns P1 for Intel Ireland news without large investment', () => {
+      const article = createNewsItem(
+        'Intel Ireland showcases new 3nm chip technology',
       );
       assert.equal(getNewsPriority(article), NewsPriority.P1);
     });
 
-    it('returns P1 for Intel Leixlip news', () => {
+    it('returns P1 for EU Chips Act news without grant keyword', () => {
       const article = createNewsItem(
-        'Intel announces €4 billion expansion at Leixlip facility',
+        'EU Chips Act impact on Ireland semiconductor industry',
       );
       assert.equal(getNewsPriority(article), NewsPriority.P1);
     });
