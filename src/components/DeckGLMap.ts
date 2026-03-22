@@ -17,9 +17,12 @@ import {
   getDataCenterTier,
   getTechHQTier,
   getUnicornTier,
-  getTierRadius,
   getTierColor,
 } from '@/services/marker-tier';
+import {
+  getMarkerIconUrl,
+  getMarkerSizeForTier,
+} from '@/services/marker-icons';
 import Supercluster from 'supercluster';
 import type {
   MapLayers,
@@ -2723,54 +2726,71 @@ export class DeckGLMap {
    * Create semiconductor hubs layer for Ireland variant
    * Shows major semiconductor facilities (Intel, Analog Devices, etc.)
    */
-  private createSemiconductorHubsLayer(): ScatterplotLayer {
+  /**
+   * Create semiconductor hubs layer using IconLayer for diamond shape
+   */
+  private createSemiconductorHubsLayer(): IconLayer {
     // Pulse animation for Tier 1 facilities
     const pulse = 1.0 + 0.15 * Math.sin((this.pulseTime || Date.now()) / 1000);
 
-    return new ScatterplotLayer({
+    return new IconLayer({
       id: 'semiconductor-hubs-layer',
       data: IRELAND_SEMICONDUCTOR_HUBS,
       getPosition: (d) => [d.lng, d.lat],
-      getRadius: (d) => {
+      getIcon: (d) => {
         const tier = getSemiconductorTier(d.employees);
-        const baseRadius = getTierRadius(tier)[0];
-        // Only Tier 1 facilities pulse
-        return tier === 1 ? baseRadius * pulse : baseRadius;
+        return {
+          url: getMarkerIconUrl('diamond', tier),
+          width: getMarkerSizeForTier(tier, 'diamond'),
+          height: getMarkerSizeForTier(tier, 'diamond'),
+          mask: true, // Enables color tinting
+        };
       },
-      getFillColor: (d) => {
+      getSize: (d) => {
+        const tier = getSemiconductorTier(d.employees);
+        const baseSize = getMarkerSizeForTier(tier, 'diamond');
+        // Only Tier 1 facilities pulse
+        return tier === 1 ? baseSize * pulse : baseSize;
+      },
+      getColor: (d) => {
         const tier = getSemiconductorTier(d.employees);
         return getTierColor([138, 43, 226], tier); // Purple base
       },
-      radiusMinPixels: 6,
-      radiusMaxPixels: 28,
-      radiusScale: 1,
-      stroked: true,
-      getLineColor: [255, 255, 255, 220] as [number, number, number, number],
-      lineWidthMinPixels: 2,
+      sizeScale: 1,
+      sizeMinPixels: 8,
+      sizeMaxPixels: 32,
       pickable: true,
-      updateTriggers: { getRadius: this.pulseTime },
+      updateTriggers: { getSize: this.pulseTime, getIcon: this.pulseTime },
     });
   }
 
   /**
-   * Create Ireland data centers layer
+   * Create Ireland data centers layer using IconLayer for square shape
    * Shows major cloud and colocation facilities (Google, Meta, Microsoft, AWS, Equinix)
    */
-  private createIrelandDataCentersLayer(): ScatterplotLayer<IrelandDataCenter> {
+  private createIrelandDataCentersLayer(): IconLayer<IrelandDataCenter> {
     // Pulse animation for Tier 1 facilities
     const pulse = 1.0 + 0.15 * Math.sin((this.pulseTime || Date.now()) / 1000);
 
-    return new ScatterplotLayer<IrelandDataCenter>({
+    return new IconLayer<IrelandDataCenter>({
       id: 'ireland-data-centers-layer',
       data: IRELAND_DATA_CENTERS,
       getPosition: (d) => [d.lng, d.lat],
-      getRadius: (d) => {
+      getIcon: (d) => {
         const tier = getDataCenterTier(d.operator);
-        const baseRadius = getTierRadius(tier)[0];
-        // Only Tier 1 facilities pulse
-        return tier === 1 ? baseRadius * pulse : baseRadius;
+        return {
+          url: getMarkerIconUrl('square', tier),
+          width: getMarkerSizeForTier(tier, 'square'),
+          height: getMarkerSizeForTier(tier, 'square'),
+          mask: true,
+        };
       },
-      getFillColor: (d) => {
+      getSize: (d) => {
+        const tier = getDataCenterTier(d.operator);
+        const baseSize = getMarkerSizeForTier(tier, 'square');
+        return tier === 1 ? baseSize * pulse : baseSize;
+      },
+      getColor: (d) => {
         const tier = getDataCenterTier(d.operator);
         // Color by operator with tier adjustment
         if (d.operator.includes('Google')) return getTierColor([66, 133, 244], tier);
@@ -2780,81 +2800,92 @@ export class DeckGLMap {
         if (d.operator.includes('Equinix')) return getTierColor([237, 28, 36], tier);
         return getTierColor([128, 128, 128], tier);
       },
-      radiusMinPixels: 6,
-      radiusMaxPixels: 28,
-      stroked: true,
-      getLineColor: [255, 255, 255, 220] as [number, number, number, number],
-      lineWidthMinPixels: 1.5,
+      sizeScale: 1,
+      sizeMinPixels: 8,
+      sizeMaxPixels: 32,
       pickable: true,
-      updateTriggers: { getRadius: this.pulseTime },
+      updateTriggers: { getSize: this.pulseTime, getIcon: this.pulseTime },
     });
   }
 
   /**
-   * Create Ireland tech HQs layer
+   * Create Ireland tech HQs layer using IconLayer for hexagon shape
    * Shows EMEA headquarters of major tech companies (Google, Meta, Apple, etc.)
    */
-  private createIrelandTechHQsLayer(): ScatterplotLayer<IrelandTechHQ> {
+  private createIrelandTechHQsLayer(): IconLayer<IrelandTechHQ> {
     // Pulse animation for Tier 1 facilities
     const pulse = 1.0 + 0.15 * Math.sin((this.pulseTime || Date.now()) / 1000);
 
-    return new ScatterplotLayer<IrelandTechHQ>({
+    return new IconLayer<IrelandTechHQ>({
       id: 'ireland-tech-hqs-layer',
       data: IRELAND_TECH_HQS,
       getPosition: (d) => [d.lng, d.lat],
-      getRadius: (d) => {
+      getIcon: (d) => {
         const tier = getTechHQTier(d.employees);
-        const baseRadius = getTierRadius(tier)[0];
-        // Only Tier 1 facilities pulse
-        return tier === 1 ? baseRadius * pulse : baseRadius;
+        return {
+          url: getMarkerIconUrl('hexagon', tier),
+          width: getMarkerSizeForTier(tier, 'hexagon'),
+          height: getMarkerSizeForTier(tier, 'hexagon'),
+          mask: true,
+        };
       },
-      getFillColor: (d) => {
+      getSize: (d) => {
+        const tier = getTechHQTier(d.employees);
+        const baseSize = getMarkerSizeForTier(tier, 'hexagon');
+        return tier === 1 ? baseSize * pulse : baseSize;
+      },
+      getColor: (d) => {
         const tier = getTechHQTier(d.employees);
         return getTierColor([0, 122, 255], tier); // Blue base
       },
-      radiusMinPixels: 6,
-      radiusMaxPixels: 28,
-      stroked: true,
-      getLineColor: [255, 255, 255, 220] as [number, number, number, number],
-      lineWidthMinPixels: 1.5,
+      sizeScale: 1,
+      sizeMinPixels: 8,
+      sizeMaxPixels: 32,
       pickable: true,
-      updateTriggers: { getRadius: this.pulseTime },
+      updateTriggers: { getSize: this.pulseTime, getIcon: this.pulseTime },
     });
   }
 
   /**
-   * Create Irish unicorns layer
+   * Create Irish unicorns layer using IconLayer for star shape
    * Shows local Irish tech companies with unicorn status or high growth
-   * Uses Irish green color scheme with glow effect for Tier 1
+   * Uses gold color for Tier 1 (star effect), Irish green for others
    */
-  private createIrishUnicornsLayer(): ScatterplotLayer<IrishUnicorn> {
+  private createIrishUnicornsLayer(): IconLayer<IrishUnicorn> {
     // Stronger pulse for unicorns (star-like glow effect)
     const pulse = 1.0 + 0.2 * Math.sin((this.pulseTime || Date.now()) / 800);
 
-    return new ScatterplotLayer<IrishUnicorn>({
+    return new IconLayer<IrishUnicorn>({
       id: 'irish-unicorns-layer',
       data: IRISH_UNICORNS,
       getPosition: (d) => [d.lng, d.lat],
-      getRadius: (d) => {
+      getIcon: (d) => {
         const tier = getUnicornTier(d.category);
-        const baseRadius = getTierRadius(tier)[0];
-        // Tier 1 unicorns get stronger pulse (star glow effect)
-        return tier === 1 ? baseRadius * pulse : baseRadius;
+        return {
+          url: getMarkerIconUrl('star', tier),
+          width: getMarkerSizeForTier(tier, 'star'),
+          height: getMarkerSizeForTier(tier, 'star'),
+          mask: true,
+        };
       },
-      getFillColor: (d) => {
+      getSize: (d) => {
         const tier = getUnicornTier(d.category);
-        // Gold color for unicorns instead of green for more "star" feel
+        const baseSize = getMarkerSizeForTier(tier, 'star');
+        // Tier 1 unicorns get stronger pulse (star glow effect)
+        return tier === 1 ? baseSize * pulse : baseSize;
+      },
+      getColor: (d) => {
+        const tier = getUnicornTier(d.category);
+        // Gold color for Tier 1, Irish green for others
         return tier === 1
           ? getTierColor([245, 158, 11], tier) // Gold for Tier 1
           : getTierColor([22, 155, 98], tier); // Irish green for others
       },
-      radiusMinPixels: 6,
-      radiusMaxPixels: 32,
-      stroked: true,
-      getLineColor: [255, 255, 255, 220] as [number, number, number, number],
-      lineWidthMinPixels: 2,
+      sizeScale: 1,
+      sizeMinPixels: 8,
+      sizeMaxPixels: 36,
       pickable: true,
-      updateTriggers: { getRadius: this.pulseTime },
+      updateTriggers: { getSize: this.pulseTime, getIcon: this.pulseTime },
     });
   }
 
