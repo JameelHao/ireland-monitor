@@ -604,8 +604,9 @@ export interface MapLayers {
   accelerators: boolean;
   techHQs: boolean;
   techEvents: boolean;
-  // Ireland variant - semiconductor layer
+  // Ireland variant layers
   semiconductorHubs: boolean;
+  irelandDataCenters: boolean;
   // Finance variant layers
   stockExchanges: boolean;
   financialCenters: boolean;

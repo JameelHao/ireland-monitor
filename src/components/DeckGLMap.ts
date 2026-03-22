@@ -9,6 +9,7 @@ import { GeoJsonLayer, ScatterplotLayer, PathLayer, IconLayer, TextLayer, Polygo
 import maplibregl from 'maplibre-gl';
 import { registerPMTilesProtocol, FALLBACK_DARK_STYLE, FALLBACK_LIGHT_STYLE, getMapProvider, getMapTheme, getStyleForProvider, isLightMapTheme } from '@/config/basemap';
 import { IRELAND_SEMICONDUCTOR_HUBS } from '@/data/semiconductor-hubs';
+import { IRELAND_DATA_CENTERS, type IrelandDataCenter } from '@/data/data-centers-ireland';
 import Supercluster from 'supercluster';
 import type {
   MapLayers,
@@ -1546,6 +1547,9 @@ export class DeckGLMap {
       if (mapLayers.semiconductorHubs) {
         layers.push(this.createSemiconductorHubsLayer());
       }
+      if (mapLayers.irelandDataCenters) {
+        layers.push(this.createIrelandDataCentersLayer());
+      }
     }
 
     const irelandTechFallback = this.createIrelandTechFallbackLayer(mapLayers);
@@ -2719,6 +2723,34 @@ export class DeckGLMap {
     });
   }
 
+  /**
+   * Create Ireland data centers layer
+   * Shows major cloud and colocation facilities (Google, Meta, Microsoft, AWS, Equinix)
+   */
+  private createIrelandDataCentersLayer(): ScatterplotLayer<IrelandDataCenter> {
+    return new ScatterplotLayer<IrelandDataCenter>({
+      id: 'ireland-data-centers-layer',
+      data: IRELAND_DATA_CENTERS,
+      getPosition: (d) => [d.lng, d.lat],
+      getRadius: 18000,
+      getFillColor: (d) => {
+        // Color by operator
+        if (d.operator.includes('Google')) return [66, 133, 244, 235]; // Google Blue
+        if (d.operator.includes('Meta')) return [24, 119, 242, 235]; // Meta Blue
+        if (d.operator.includes('Microsoft')) return [0, 164, 239, 235]; // Azure Blue
+        if (d.operator.includes('Amazon')) return [255, 153, 0, 235]; // AWS Orange
+        if (d.operator.includes('Equinix')) return [237, 28, 36, 235]; // Equinix Red
+        return [128, 128, 128, 235]; // Default Gray
+      },
+      radiusMinPixels: 9,
+      radiusMaxPixels: 18,
+      stroked: true,
+      getLineColor: [255, 255, 255, 220] as [number, number, number, number],
+      lineWidthMinPixels: 1.5,
+      pickable: true,
+    });
+  }
+
   private createCloudRegionsLayer(): ScatterplotLayer {
     const isIreland = SITE_VARIANT === 'ireland';
     return new ScatterplotLayer({
@@ -3543,6 +3575,8 @@ export class DeckGLMap {
         return { html: `<div class="deckgl-tooltip"><strong>${text(obj.provider)}</strong><br/>${text(obj.region)}</div>` };
       case 'semiconductor-hubs-layer':
         return { html: `<div class="deckgl-tooltip"><strong>${text(obj.name)}</strong><br/>${text(obj.company)}<br/>${text(obj.business)}</div>` };
+      case 'ireland-data-centers-layer':
+        return { html: `<div class="deckgl-tooltip"><strong>${text(obj.name)}</strong><br/>${text(obj.operator)}${obj.capacity ? `<br/>${text(obj.capacity)}` : ''}</div>` };
       case 'tech-events-layer':
         return { html: `<div class="deckgl-tooltip"><strong>${text(obj.title)}</strong><br/>${text(obj.location)}</div>` };
       case 'irradiators-layer':
@@ -3896,6 +3930,7 @@ export class DeckGLMap {
       'accelerators-layer': 'accelerator',
       'cloud-regions-layer': 'cloudRegion',
       'semiconductor-hubs-layer': 'semiconductorHub',
+      'ireland-data-centers-layer': 'irelandDataCenter',
       'tech-events-layer': 'techEvent',
       'apt-groups-layer': 'apt',
       'minerals-layer': 'mineral',
