@@ -115,3 +115,4 @@ export function getMarkerIconUrl(shape: MarkerShape, tier: MarkerTier): string {
   return `/icons/map-markers/${iconName}.svg`;
 }
 
+
