@@ -3,7 +3,7 @@
  */
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { IRELAND_SEMICONDUCTOR_HUBS, type SemiconductorHub } from '../src/data/semiconductor-hubs.ts';
+import { IRELAND_SEMICONDUCTOR_HUBS, type SemiconductorHub } from '../src/config/variants/ireland/data/semiconductor-hubs.ts';
 
 describe('IRELAND_SEMICONDUCTOR_HUBS', () => {
   it('contains 5 semiconductor facilities', () => {

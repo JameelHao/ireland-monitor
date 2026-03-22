@@ -3,7 +3,7 @@
  */
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { IRISH_UNICORNS, type IrishUnicorn } from '../src/data/irish-unicorns.ts';
+import { IRISH_UNICORNS, type IrishUnicorn } from '../src/config/variants/ireland/data/unicorns.ts';
 
 describe('IRISH_UNICORNS', () => {
   it('contains at least 8 companies', () => {
