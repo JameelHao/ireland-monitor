@@ -8,10 +8,15 @@ import type { Layer, LayersList, PickingInfo } from '@deck.gl/core';
 import { GeoJsonLayer, ScatterplotLayer, PathLayer, IconLayer, TextLayer, PolygonLayer } from '@deck.gl/layers';
 import maplibregl from 'maplibre-gl';
 import { registerPMTilesProtocol, FALLBACK_DARK_STYLE, FALLBACK_LIGHT_STYLE, getMapProvider, getMapTheme, getStyleForProvider, isLightMapTheme } from '@/config/basemap';
-import { IRELAND_SEMICONDUCTOR_HUBS } from '@/data/semiconductor-hubs';
-import { IRELAND_DATA_CENTERS, type IrelandDataCenter } from '@/data/data-centers-ireland';
-import { IRELAND_TECH_HQS, type IrelandTechHQ } from '@/data/tech-hqs-ireland';
-import { IRISH_UNICORNS, type IrishUnicorn } from '@/data/irish-unicorns';
+import {
+  IRELAND_SEMICONDUCTOR_HUBS,
+  IRELAND_DATA_CENTERS,
+  IRELAND_TECH_HQS,
+  IRISH_UNICORNS,
+  type IrelandDataCenter,
+  type IrelandTechHQ,
+  type IrishUnicorn,
+} from '@/config/variants/ireland/data';
 import {
   getSemiconductorTier,
   getDataCenterTier,

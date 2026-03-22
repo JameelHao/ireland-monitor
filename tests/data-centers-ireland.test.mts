@@ -3,7 +3,7 @@
  */
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { IRELAND_DATA_CENTERS, type IrelandDataCenter } from '../src/data/data-centers-ireland.ts';
+import { IRELAND_DATA_CENTERS, type IrelandDataCenter } from '../src/config/variants/ireland/data/data-centers.ts';
 
 describe('IRELAND_DATA_CENTERS', () => {
   it('contains at least 10 data center facilities', () => {

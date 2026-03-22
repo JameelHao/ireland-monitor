@@ -3,7 +3,7 @@
  */
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { IRELAND_TECH_HQS, type IrelandTechHQ } from '../src/data/tech-hqs-ireland.ts';
+import { IRELAND_TECH_HQS, type IrelandTechHQ } from '../src/config/variants/ireland/data/tech-hqs.ts';
 
 describe('IRELAND_TECH_HQS', () => {
   it('contains at least 10 tech company HQs', () => {
