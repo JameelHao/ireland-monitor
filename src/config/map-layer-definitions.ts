@@ -66,6 +66,7 @@ export const LAYER_REGISTRY: Record<keyof MapLayers, LayerDefinition> = {
   cloudRegions:             def('cloudRegions',             '&#9729;',   'cloudRegions',             'Cloud Regions'),
   techEvents:               def('techEvents',               '&#128197;', 'techEvents',               'Tech Events'),
   semiconductorHubs:        def('semiconductorHubs',        '&#128190;', 'semiconductorHubs',        'Semiconductor Hubs'),
+  irelandDataCenters:       def('irelandDataCenters',       '&#127970;', 'irelandDataCenters',       'Data Centers (Ireland)'),
   stockExchanges:           def('stockExchanges',           '&#127963;', 'stockExchanges',           'Stock Exchanges'),
   financialCenters:         def('financialCenters',         '&#128176;', 'financialCenters',         'Financial Centers'),
   centralBanks:             def('centralBanks',             '&#127974;', 'centralBanks',             'Central Banks'),
@@ -115,7 +116,7 @@ const VARIANT_LAYER_ORDER: Record<MapVariant, Array<keyof MapLayers>> = {
     'natural', 'weather', 'outages', 'dayNight',
   ],
   ireland: [
-    'semiconductorHubs', 'datacenters', 'techHQs', 'startupHubs', 'cloudRegions',
+    'semiconductorHubs', 'irelandDataCenters', 'techHQs', 'startupHubs', 'cloudRegions',
     'accelerators', 'techEvents',
   ],
 };

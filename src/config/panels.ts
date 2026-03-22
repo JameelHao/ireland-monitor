@@ -111,6 +111,7 @@ const FULL_MAP_LAYERS: MapLayers = {
   techHQs: false,
   techEvents: false,
   semiconductorHubs: false,
+  irelandDataCenters: false,
   // Finance layers (disabled in full variant)
   stockExchanges: false,
   financialCenters: false,
@@ -173,6 +174,7 @@ const FULL_MOBILE_MAP_LAYERS: MapLayers = {
   techHQs: false,
   techEvents: false,
   semiconductorHubs: false,
+  irelandDataCenters: false,
   // Finance layers (disabled in full variant)
   stockExchanges: false,
   financialCenters: false,
@@ -276,6 +278,7 @@ const TECH_MAP_LAYERS: MapLayers = {
   techHQs: true,
   techEvents: true,
   semiconductorHubs: false,
+  irelandDataCenters: false,
   // Finance layers (disabled in tech variant)
   stockExchanges: false,
   financialCenters: false,
@@ -337,6 +340,7 @@ const TECH_MOBILE_MAP_LAYERS: MapLayers = {
   techHQs: false,
   techEvents: true,
   semiconductorHubs: false,
+  irelandDataCenters: false,
   // Finance layers (disabled in tech variant)
   stockExchanges: false,
   financialCenters: false,
@@ -444,6 +448,7 @@ const FINANCE_MAP_LAYERS: MapLayers = {
   techHQs: false,
   techEvents: false,
   semiconductorHubs: false,
+  irelandDataCenters: false,
   // Finance layers (enabled in finance variant)
   stockExchanges: true,
   financialCenters: true,
@@ -505,6 +510,7 @@ const FINANCE_MOBILE_MAP_LAYERS: MapLayers = {
   techHQs: false,
   techEvents: false,
   semiconductorHubs: false,
+  irelandDataCenters: false,
   // Finance layers (limited on mobile)
   stockExchanges: true,
   financialCenters: false,
@@ -582,6 +588,7 @@ const HAPPY_MAP_LAYERS: MapLayers = {
   techHQs: false,
   techEvents: false,
   semiconductorHubs: false,
+  irelandDataCenters: false,
   // Finance layers (disabled)
   stockExchanges: false,
   financialCenters: false,
@@ -643,6 +650,7 @@ const HAPPY_MOBILE_MAP_LAYERS: MapLayers = {
   techHQs: false,
   techEvents: false,
   semiconductorHubs: false,
+  irelandDataCenters: false,
   // Finance layers (disabled)
   stockExchanges: false,
   financialCenters: false,
@@ -736,6 +744,7 @@ const COMMODITY_MAP_LAYERS: MapLayers = {
   techHQs: false,
   techEvents: false,
   semiconductorHubs: false,
+  irelandDataCenters: false,
   // Finance layers (enabled for commodity hubs)
   stockExchanges: false,
   financialCenters: false,
@@ -797,6 +806,7 @@ const COMMODITY_MOBILE_MAP_LAYERS: MapLayers = {
   techHQs: false,
   techEvents: false,
   semiconductorHubs: false,
+  irelandDataCenters: false,
   // Finance layers (limited on mobile)
   stockExchanges: false,
   financialCenters: false,
