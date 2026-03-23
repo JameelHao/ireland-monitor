@@ -6,7 +6,7 @@ import {
   isIrelandSource,
   isIrelandRelated,
   sortByIrelandRelevance,
-} from '../src/utils/ireland-filter.js';
+} from '../src/config/variants/ireland/utils/filters.js';
 
 describe('ireland-filter', () => {
   describe('isInIreland', () => {
