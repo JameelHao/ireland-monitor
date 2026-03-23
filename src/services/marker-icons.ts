@@ -55,14 +55,16 @@ const SVG_PATHS: Record<MarkerShape, string> = {
 
 /**
  * Generate SVG data URL for a shape
+ * Uses semi-transparent fill (0.85 opacity) for worldmonitor-style appearance
  */
 function generateSvgDataUrl(shape: MarkerShape, size: number): string {
   const path = SVG_PATHS[shape];
   // Scale path to fit size (original paths are designed for 24x24)
   const scale = size / 24;
+  // Semi-transparent fill for cleaner, more professional look (worldmonitor style)
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
     <g transform="scale(${scale})">
-      <path d="${path}" fill="white"/>
+      <path d="${path}" fill="white" fill-opacity="0.85"/>
     </g>
   </svg>`;
   return `data:image/svg+xml;base64,${btoa(svg)}`;
