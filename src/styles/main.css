@@ -14767,21 +14767,34 @@ a.prediction-link:hover {
 
 /* deck.gl Layer Toggles */
 .deckgl-layer-toggles {
-  position: absolute;
+  /* Use fixed positioning for reliable cross-platform visibility (Windows/Mac) */
+  position: fixed;
   bottom: 10px;
   left: 10px;
   z-index: 1000;
   background: var(--panel-bg);
   border: 1px solid var(--border-strong);
   border-radius: 6px;
+  /* Fixed width to avoid Windows font rendering differences */
+  width: 260px;
   max-width: 260px;
   max-height: 50vh;
-  display: flex !important; /* Ensure visibility on all screen sizes */
+  /* Explicit flex display with vendor prefixes for older browsers */
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex !important;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
   flex-direction: column;
   overflow: hidden;
+  -ms-flex-wrap: nowrap;
   flex-wrap: nowrap;
   visibility: visible !important;
   opacity: 1 !important;
+  /* Ensure element is not clipped by parent containers */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .deckgl-layer-toggles .toggle-header {
@@ -15190,12 +15203,21 @@ a.prediction-link:hover {
 
 /* deck.gl Legend - horizontal bar at bottom center */
 .deckgl-legend {
-  position: absolute;
+  /* Use fixed positioning for reliable cross-platform visibility (Windows/Mac) */
+  position: fixed;
   bottom: 8px;
   left: 50%;
-  transform: translateX(-50%);
+  /* Use translateX with translateZ for GPU acceleration and reliable rendering */
+  -webkit-transform: translateX(-50%) translateZ(0);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   z-index: 1000;
-  display: flex !important; /* Ensure visibility on all screen sizes */
+  /* Explicit flex display with vendor prefixes for older browsers */
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex !important;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
   align-items: center;
   gap: 12px;
   background: var(--bg);
@@ -15204,6 +15226,9 @@ a.prediction-link:hover {
   padding: 5px 12px;
   visibility: visible !important;
   opacity: 1 !important;
+  /* Prevent clipping by parent containers */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .deckgl-legend .legend-label-title {
@@ -18986,8 +19011,9 @@ body.has-breaking-alert .panels-grid {
   }
 
   /* Ensure deck.gl controls are visible in ultra-wide layout */
-  .map-section .deckgl-layer-toggles,
-  .map-section .deckgl-legend {
+  /* Note: These use fixed positioning so parent selector is for specificity only */
+  .deckgl-layer-toggles,
+  .deckgl-legend {
     z-index: 1001;
   }
 
