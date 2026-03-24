@@ -2,6 +2,7 @@
  * Smart Alert API
  *
  * CRUD operations for user alerts.
+ * Uses Upstash REST API for Edge Function compatibility.
  *
  * Routes:
  * - GET /api/alerts?userId=xxx - List alerts for user
@@ -10,7 +11,6 @@
  * - DELETE /api/alerts?id=xxx&userId=xxx - Delete alert
  */
 
-import { Redis } from '@upstash/redis';
 import { jsonResponse } from './_json-response.js';
 import { withCors } from './_cors.js';
 
@@ -30,12 +30,57 @@ function generateUserId() {
   return `user_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-// Initialize Redis client
-function getRedis() {
+// Upstash REST API helpers
+async function redisCmd(cmd, ...args) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
-  return new Redis({ url, token });
+
+  const cmdUrl = `${url}/${[cmd, ...args.map(encodeURIComponent)].join('/')}`;
+  const resp = await fetch(cmdUrl, {
+    headers: { Authorization: `Bearer ${token}` },
+    signal: AbortSignal.timeout(5000),
+  });
+  if (!resp.ok) return null;
+
+  const data = await resp.json();
+  return data.result;
+}
+
+async function redisGet(key) {
+  const result = await redisCmd('get', key);
+  if (!result) return null;
+  try {
+    return JSON.parse(result);
+  } catch {
+    return null;
+  }
+}
+
+async function redisSet(key, value) {
+  return redisCmd('set', key, JSON.stringify(value));
+}
+
+async function redisDel(key) {
+  return redisCmd('del', key);
+}
+
+async function redisSadd(key, member) {
+  return redisCmd('sadd', key, member);
+}
+
+async function redisSrem(key, member) {
+  return redisCmd('srem', key, member);
+}
+
+async function redisSmembers(key) {
+  const result = await redisCmd('smembers', key);
+  return result || [];
+}
+
+async function redisScard(key) {
+  const result = await redisCmd('scard', key);
+  return parseInt(result, 10) || 0;
 }
 
 // Validate alert request
@@ -55,33 +100,30 @@ function validateCreateRequest(body) {
 
 // Handler
 async function handler(request) {
-  const redis = getRedis();
-  if (!redis) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) {
     return jsonResponse({ success: false, error: 'Storage not configured' }, { status: 503 });
   }
 
-  const url = new URL(request.url);
+  const reqUrl = new URL(request.url);
   const method = request.method;
 
   try {
     // GET - List alerts
     if (method === 'GET') {
-      const userId = url.searchParams.get('userId');
+      const userId = reqUrl.searchParams.get('userId');
       if (!userId) {
         return jsonResponse({ success: false, error: 'userId required' }, { status: 400 });
       }
 
-      const alertIds = await redis.smembers(keys.alertList(userId));
+      const alertIds = await redisSmembers(keys.alertList(userId));
       const alerts = [];
 
       for (const alertId of alertIds) {
-        const data = await redis.get(keys.alert(userId, alertId));
+        const data = await redisGet(keys.alert(userId, alertId));
         if (data) {
-          try {
-            alerts.push(typeof data === 'string' ? JSON.parse(data) : data);
-          } catch (e) {
-            // Skip invalid entries
-          }
+          alerts.push(data);
         }
       }
 
@@ -104,20 +146,17 @@ async function handler(request) {
       const keyword = body.keyword.trim();
 
       // Check alert limit
-      const count = await redis.scard(keys.alertList(userId));
+      const count = await redisScard(keys.alertList(userId));
       if (count >= 20) {
         return jsonResponse({ success: false, error: 'Maximum 20 alerts per user' }, { status: 400 });
       }
 
       // Check for duplicate
-      const existingIds = await redis.smembers(keys.alertList(userId));
+      const existingIds = await redisSmembers(keys.alertList(userId));
       for (const id of existingIds) {
-        const data = await redis.get(keys.alert(userId, id));
-        if (data) {
-          const existing = typeof data === 'string' ? JSON.parse(data) : data;
-          if (existing.keyword.toLowerCase() === keyword.toLowerCase()) {
-            return jsonResponse({ success: false, error: 'Alert with this keyword already exists' }, { status: 400 });
-          }
+        const existing = await redisGet(keys.alert(userId, id));
+        if (existing && existing.keyword.toLowerCase() === keyword.toLowerCase()) {
+          return jsonResponse({ success: false, error: 'Alert with this keyword already exists' }, { status: 400 });
         }
       }
 
@@ -135,20 +174,17 @@ async function handler(request) {
         updatedAt: now,
       };
 
-      await redis.set(keys.alert(userId, alertId), JSON.stringify(alert));
-      await redis.sadd(keys.alertList(userId), alertId);
+      await redisSet(keys.alert(userId, alertId), alert);
+      await redisSadd(keys.alertList(userId), alertId);
 
       // Save user profile if email/telegram provided
       if (body.email || body.telegramChatId) {
-        const existingProfile = await redis.get(keys.userProfile(userId));
-        const profile = existingProfile
-          ? (typeof existingProfile === 'string' ? JSON.parse(existingProfile) : existingProfile)
-          : { userId, preferences: { digestMode: false } };
+        const existingProfile = await redisGet(keys.userProfile(userId)) || { userId, preferences: { digestMode: false } };
 
-        if (body.email) profile.email = body.email;
-        if (body.telegramChatId) profile.telegramChatId = body.telegramChatId;
+        if (body.email) existingProfile.email = body.email;
+        if (body.telegramChatId) existingProfile.telegramChatId = body.telegramChatId;
 
-        await redis.set(keys.userProfile(userId), JSON.stringify(profile));
+        await redisSet(keys.userProfile(userId), existingProfile);
       }
 
       return jsonResponse({ success: true, alert, userId });
@@ -156,19 +192,18 @@ async function handler(request) {
 
     // PATCH - Update alert
     if (method === 'PATCH') {
-      const alertId = url.searchParams.get('id');
-      const userId = url.searchParams.get('userId');
+      const alertId = reqUrl.searchParams.get('id');
+      const userId = reqUrl.searchParams.get('userId');
 
       if (!alertId || !userId) {
         return jsonResponse({ success: false, error: 'id and userId required' }, { status: 400 });
       }
 
-      const data = await redis.get(keys.alert(userId, alertId));
-      if (!data) {
+      const existing = await redisGet(keys.alert(userId, alertId));
+      if (!existing) {
         return jsonResponse({ success: false, error: 'Alert not found' }, { status: 404 });
       }
 
-      const existing = typeof data === 'string' ? JSON.parse(data) : data;
       const body = await request.json();
 
       const updated = {
@@ -180,22 +215,22 @@ async function handler(request) {
         updatedAt: new Date().toISOString(),
       };
 
-      await redis.set(keys.alert(userId, alertId), JSON.stringify(updated));
+      await redisSet(keys.alert(userId, alertId), updated);
 
       return jsonResponse({ success: true, alert: updated });
     }
 
     // DELETE - Delete alert
     if (method === 'DELETE') {
-      const alertId = url.searchParams.get('id');
-      const userId = url.searchParams.get('userId');
+      const alertId = reqUrl.searchParams.get('id');
+      const userId = reqUrl.searchParams.get('userId');
 
       if (!alertId || !userId) {
         return jsonResponse({ success: false, error: 'id and userId required' }, { status: 400 });
       }
 
-      await redis.del(keys.alert(userId, alertId));
-      await redis.srem(keys.alertList(userId), alertId);
+      await redisDel(keys.alert(userId, alertId));
+      await redisSrem(keys.alertList(userId), alertId);
 
       return jsonResponse({ success: true });
     }
