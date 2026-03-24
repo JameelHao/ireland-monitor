@@ -1,0 +1,107 @@
+/**
+ * Map Marker Styles
+ *
+ * Defines glowing circle markers with pulse animation.
+ * Animation only applies to Tier 1 markers for performance.
+ */
+
+/* Pulse animation for Tier 1 markers */
+@keyframes marker-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* Tier 1 markers - Large with pulse animation */
+.marker-tier1 {
+  animation: marker-pulse 2.5s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Tier 2 markers - Medium, static */
+.marker-tier2 {
+  opacity: 0.8;
+}
+
+/* Tier 3 markers - Small, static */
+.marker-tier3 {
+  opacity: 0.7;
+}
+
+/* Alternative: If using deck.gl transitions */
+.deck-gl-marker.tier-1 {
+  transition: transform 0.3s ease-out;
+}
+
+.deck-gl-marker.tier-1:hover {
+  transform: scale(1.2);
+}
+
+/* Legend marker styles */
+.legend-marker {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Glowing legend marker */
+.legend-marker.glow {
+  box-shadow: 
+    0 0 4px currentColor,
+    0 0 8px currentColor;
+}
+
+/* Layer colors for legend */
+.legend-marker.semiconductor-hubs {
+  background-color: #A855F7;
+  color: #A855F7;
+}
+
+.legend-marker.data-centers {
+  background-color: #9333EA;
+  color: #9333EA;
+}
+
+.legend-marker.tech-hqs {
+  background-color: #0EA5E9;
+  color: #0EA5E9;
+}
+
+.legend-marker.irish-unicorns {
+  background-color: #F97316;
+  color: #F97316;
+}
+
+.legend-marker.startup-hubs {
+  background-color: #EF4444;
+  color: #EF4444;
+}
+
+.legend-marker.accelerators {
+  background-color: #EC4899;
+  color: #EC4899;
+}
+
+.legend-marker.cloud-regions {
+  background-color: #14B8A6;
+  color: #14B8A6;
+}
+
+/* Reduce motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .marker-tier1 {
+    animation: none;
+  }
+  
+  .deck-gl-marker.tier-1:hover {
+    transform: none;
+  }
+}

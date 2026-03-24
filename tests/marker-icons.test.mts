@@ -1,186 +1,209 @@
 /**
- * Marker Icons Service Tests
+ * Marker Icons Tests
  *
- * Tests for simplified marker shapes (FR #107):
- * - circle: Core infrastructure (Semiconductor Hubs, Data Centers)
- * - diamond: Professional/HQ (Tech HQs, Accelerators)
- * - triangle: Growth/Unicorns (Irish Unicorns)
- * - square: Foundation (Cloud Regions)
+ * Tests for glowing circle marker icons.
  */
+
 import { describe, it } from 'node:test';
-import assert from 'node:assert';
+import assert from 'node:assert/strict';
 import {
   getMarkerIconName,
   getMarkerSizeForTier,
-  getMarkerIconUrl,
   getMarkerIcon,
+  getMarkerIconUrl,
+  getLayerColor,
   MARKER_ICON_MAPPING,
-  type MarkerShape,
-} from '../src/services/marker-icons.ts';
-import type { MarkerTier } from '../src/services/marker-tier.ts';
+  LAYER_COLORS,
+} from '../src/services/marker-icons.js';
+import type { MarkerShape } from '../src/services/marker-icons.js';
 
-describe('Marker Icons Service', () => {
-  describe('getMarkerIconName', () => {
-    it('returns correct name for circle shape', () => {
-      assert.equal(getMarkerIconName('circle', 1), 'circle-large');
-      assert.equal(getMarkerIconName('circle', 2), 'circle-medium');
-      assert.equal(getMarkerIconName('circle', 3), 'circle-small');
-    });
-
-    it('returns correct name for diamond shape', () => {
-      assert.equal(getMarkerIconName('diamond', 1), 'diamond-large');
-      assert.equal(getMarkerIconName('diamond', 2), 'diamond-medium');
-      assert.equal(getMarkerIconName('diamond', 3), 'diamond-small');
-    });
-
-    it('returns correct name for triangle shape', () => {
-      assert.equal(getMarkerIconName('triangle', 1), 'triangle-large');
-      assert.equal(getMarkerIconName('triangle', 2), 'triangle-medium');
-      assert.equal(getMarkerIconName('triangle', 3), 'triangle-small');
-    });
-
-    it('returns correct name for square shape', () => {
-      assert.equal(getMarkerIconName('square', 1), 'square-large');
-      assert.equal(getMarkerIconName('square', 2), 'square-medium');
-      assert.equal(getMarkerIconName('square', 3), 'square-small');
-    });
+describe('Marker Icon Names', () => {
+  it('should return circle icon name for all shapes', () => {
+    // All shapes now use circle icons
+    assert.equal(getMarkerIconName('circle', 1), 'circle-large');
+    assert.equal(getMarkerIconName('diamond', 1), 'circle-large');
+    assert.equal(getMarkerIconName('triangle', 1), 'circle-large');
+    assert.equal(getMarkerIconName('square', 1), 'circle-large');
   });
 
-  describe('getMarkerSizeForTier', () => {
-    it('returns correct sizes for all tiers', () => {
-      assert.equal(getMarkerSizeForTier(1, 'circle'), 24);
-      assert.equal(getMarkerSizeForTier(2, 'circle'), 16);
-      assert.equal(getMarkerSizeForTier(3, 'circle'), 12);
-    });
+  it('should return correct size label for each tier', () => {
+    assert.equal(getMarkerIconName('circle', 1), 'circle-large');
+    assert.equal(getMarkerIconName('circle', 2), 'circle-medium');
+    assert.equal(getMarkerIconName('circle', 3), 'circle-small');
+  });
+});
 
-    it('returns same sizes for all shapes (simplified design)', () => {
-      const shapes: MarkerShape[] = ['circle', 'diamond', 'triangle', 'square'];
-      for (const shape of shapes) {
-        assert.equal(getMarkerSizeForTier(1, shape), 24, `Tier 1 ${shape} should be 24px`);
-        assert.equal(getMarkerSizeForTier(2, shape), 16, `Tier 2 ${shape} should be 16px`);
-        assert.equal(getMarkerSizeForTier(3, shape), 12, `Tier 3 ${shape} should be 12px`);
+describe('Marker Sizes', () => {
+  it('should return larger sizes for glow effect', () => {
+    // Tier 1 is 48px to accommodate glow
+    assert.equal(getMarkerSizeForTier(1), 48);
+    // Tier 2 is 32px
+    assert.equal(getMarkerSizeForTier(2), 32);
+    // Tier 3 is 24px
+    assert.equal(getMarkerSizeForTier(3), 24);
+  });
+
+  it('should return same size regardless of shape', () => {
+    const shapes: MarkerShape[] = ['circle', 'diamond', 'triangle', 'square'];
+    for (const shape of shapes) {
+      assert.equal(getMarkerSizeForTier(1, shape), 48);
+      assert.equal(getMarkerSizeForTier(2, shape), 32);
+      assert.equal(getMarkerSizeForTier(3, shape), 24);
+    }
+  });
+});
+
+describe('Marker Icon Definition', () => {
+  it('should return valid icon definition for tier 1', () => {
+    const icon = getMarkerIcon('circle', 1);
+
+    assert.ok(icon.id);
+    assert.ok(icon.url.startsWith('data:image/svg+xml;base64,'));
+    assert.equal(icon.width, 48);
+    assert.equal(icon.height, 48);
+    assert.equal(icon.mask, true);
+    assert.equal(icon.anchorY, 24); // Center anchor
+  });
+
+  it('should return valid icon definition for tier 2', () => {
+    const icon = getMarkerIcon('circle', 2);
+
+    assert.equal(icon.width, 32);
+    assert.equal(icon.height, 32);
+    assert.equal(icon.anchorY, 16);
+  });
+
+  it('should return valid icon definition for tier 3', () => {
+    const icon = getMarkerIcon('circle', 3);
+
+    assert.equal(icon.width, 24);
+    assert.equal(icon.height, 24);
+    assert.equal(icon.anchorY, 12);
+  });
+
+  it('should return same icon for all shapes (unified circles)', () => {
+    const circleIcon = getMarkerIcon('circle', 1);
+    const diamondIcon = getMarkerIcon('diamond', 1);
+    const triangleIcon = getMarkerIcon('triangle', 1);
+    const squareIcon = getMarkerIcon('square', 1);
+
+    // All shapes return the same circle icon
+    assert.equal(circleIcon.id, diamondIcon.id);
+    assert.equal(circleIcon.id, triangleIcon.id);
+    assert.equal(circleIcon.id, squareIcon.id);
+  });
+
+  it('should cache icon definitions', () => {
+    const icon1 = getMarkerIcon('circle', 1);
+    const icon2 = getMarkerIcon('circle', 1);
+
+    // Same object reference (cached)
+    assert.equal(icon1, icon2);
+  });
+});
+
+describe('Icon URL', () => {
+  it('should return circle SVG URL for all shapes', () => {
+    assert.equal(getMarkerIconUrl('circle', 1), '/icons/map-markers/circle-large.svg');
+    assert.equal(getMarkerIconUrl('diamond', 1), '/icons/map-markers/circle-large.svg');
+    assert.equal(getMarkerIconUrl('triangle', 2), '/icons/map-markers/circle-medium.svg');
+    assert.equal(getMarkerIconUrl('square', 3), '/icons/map-markers/circle-small.svg');
+  });
+});
+
+describe('Icon Mapping', () => {
+  it('should have updated sizes for glow effect', () => {
+    // Tier 1 (large) should be 48x48
+    assert.equal(MARKER_ICON_MAPPING['circle-large'].width, 48);
+    assert.equal(MARKER_ICON_MAPPING['circle-large'].height, 48);
+
+    // Tier 2 (medium) should be 32x32
+    assert.equal(MARKER_ICON_MAPPING['circle-medium'].width, 32);
+    assert.equal(MARKER_ICON_MAPPING['circle-medium'].height, 32);
+
+    // Tier 3 (small) should be 24x24
+    assert.equal(MARKER_ICON_MAPPING['circle-small'].width, 24);
+    assert.equal(MARKER_ICON_MAPPING['circle-small'].height, 24);
+  });
+
+  it('should have all legacy shape names', () => {
+    const shapes = ['circle', 'diamond', 'triangle', 'square'];
+    const sizes = ['small', 'medium', 'large'];
+
+    for (const shape of shapes) {
+      for (const size of sizes) {
+        const key = `${shape}-${size}`;
+        assert.ok(MARKER_ICON_MAPPING[key], `Missing mapping for ${key}`);
+        assert.equal(MARKER_ICON_MAPPING[key].mask, true);
       }
-    });
+    }
+  });
+});
 
-    it('uses circle size when shape not specified', () => {
-      assert.equal(getMarkerSizeForTier(1), 24);
-      assert.equal(getMarkerSizeForTier(2), 16);
-      assert.equal(getMarkerSizeForTier(3), 12);
-    });
+describe('Layer Colors', () => {
+  it('should have all layer colors defined', () => {
+    assert.ok(LAYER_COLORS.semiconductorHubs);
+    assert.ok(LAYER_COLORS.dataCenters);
+    assert.ok(LAYER_COLORS.techHQs);
+    assert.ok(LAYER_COLORS.irishUnicorns);
+    assert.ok(LAYER_COLORS.startupHubs);
+    assert.ok(LAYER_COLORS.accelerators);
+    assert.ok(LAYER_COLORS.cloudRegions);
   });
 
-  describe('getMarkerIconUrl', () => {
-    it('returns correct URL path', () => {
-      assert.equal(getMarkerIconUrl('circle', 1), '/icons/map-markers/circle-large.svg');
-      assert.equal(getMarkerIconUrl('diamond', 2), '/icons/map-markers/diamond-medium.svg');
-      assert.equal(getMarkerIconUrl('triangle', 3), '/icons/map-markers/triangle-small.svg');
-      assert.equal(getMarkerIconUrl('square', 1), '/icons/map-markers/square-large.svg');
-    });
+  it('should return RGB tuple format', () => {
+    const color = LAYER_COLORS.semiconductorHubs;
+    assert.equal(color.length, 3);
+    assert.ok(color[0] >= 0 && color[0] <= 255);
+    assert.ok(color[1] >= 0 && color[1] <= 255);
+    assert.ok(color[2] >= 0 && color[2] <= 255);
   });
 
-  describe('MARKER_ICON_MAPPING', () => {
-    it('has all 12 icon mappings (4 shapes × 3 tiers)', () => {
-      assert.equal(Object.keys(MARKER_ICON_MAPPING).length, 12);
-    });
-
-    it('has correct dimensions for all icons', () => {
-      const shapes: MarkerShape[] = ['circle', 'diamond', 'triangle', 'square'];
-      const sizes = ['small', 'medium', 'large'];
-
-      for (const shape of shapes) {
-        for (const size of sizes) {
-          const key = `${shape}-${size}`;
-          const mapping = MARKER_ICON_MAPPING[key];
-          assert.ok(mapping, `Missing mapping for ${key}`);
-          assert.ok(mapping.width > 0, `${key} should have positive width`);
-          assert.ok(mapping.height > 0, `${key} should have positive height`);
-          assert.equal(mapping.mask, true, `${key} should have mask=true for color tinting`);
-        }
-      }
-    });
-
-    it('all large icons have same size (simplified design)', () => {
-      assert.equal(MARKER_ICON_MAPPING['circle-large']?.width, 24);
-      assert.equal(MARKER_ICON_MAPPING['diamond-large']?.width, 24);
-      assert.equal(MARKER_ICON_MAPPING['triangle-large']?.width, 24);
-      assert.equal(MARKER_ICON_MAPPING['square-large']?.width, 24);
-    });
+  it('getLayerColor should return correct color', () => {
+    assert.deepEqual(getLayerColor('semiconductorHubs'), [168, 85, 247]);
+    assert.deepEqual(getLayerColor('dataCenters'), [147, 51, 234]);
+    assert.deepEqual(getLayerColor('techHQs'), [14, 165, 233]);
+    assert.deepEqual(getLayerColor('irishUnicorns'), [249, 115, 22]);
   });
 
-  describe('getMarkerIcon', () => {
-    it('returns cached icon definition with correct properties', () => {
-      const icon = getMarkerIcon('circle', 1);
-      assert.ok(icon.url.startsWith('data:image/svg+xml;base64,'), 'URL should be a data URL');
-      assert.equal(icon.width, 24);
-      assert.equal(icon.height, 24);
-      assert.equal(icon.mask, true);
-    });
+  it('getLayerColor should return gray for unknown layer', () => {
+    // @ts-expect-error - Testing invalid layer type
+    const color = getLayerColor('unknownLayer');
+    assert.deepEqual(color, [128, 128, 128]);
+  });
+});
 
-    it('returns same object reference for same parameters (caching)', () => {
-      const icon1 = getMarkerIcon('diamond', 2);
-      const icon2 = getMarkerIcon('diamond', 2);
-      assert.strictEqual(icon1, icon2, 'Should return same cached object');
-    });
+describe('SVG Data URL', () => {
+  it('tier 1 icon should contain glow filter', () => {
+    const icon = getMarkerIcon('circle', 1);
+    const svg = atob(icon.url.replace('data:image/svg+xml;base64,', ''));
 
-    it('returns different objects for different parameters', () => {
-      const icon1 = getMarkerIcon('triangle', 1);
-      const icon2 = getMarkerIcon('triangle', 2);
-      assert.notStrictEqual(icon1, icon2);
-    });
-
-    it('all tier 1 icons have same dimensions (simplified design)', () => {
-      const circleIcon = getMarkerIcon('circle', 1);
-      const diamondIcon = getMarkerIcon('diamond', 1);
-      const triangleIcon = getMarkerIcon('triangle', 1);
-      const squareIcon = getMarkerIcon('square', 1);
-      assert.equal(circleIcon.width, 24);
-      assert.equal(diamondIcon.width, 24);
-      assert.equal(triangleIcon.width, 24);
-      assert.equal(squareIcon.width, 24);
-    });
-
-    it('generates valid SVG data URL for circle', () => {
-      const icon = getMarkerIcon('circle', 1);
-      const base64Part = icon.url.replace('data:image/svg+xml;base64,', '');
-      const decoded = atob(base64Part);
-      assert.ok(decoded.includes('<svg'), 'Should contain SVG element');
-      assert.ok(decoded.includes('<path') || decoded.includes('A10 10'), 'Should contain circle path');
-      assert.ok(decoded.includes('fill="white"'), 'Should have white fill for masking');
-    });
-
-    it('generates valid SVG data URL for triangle', () => {
-      const icon = getMarkerIcon('triangle', 1);
-      const base64Part = icon.url.replace('data:image/svg+xml;base64,', '');
-      const decoded = atob(base64Part);
-      assert.ok(decoded.includes('<svg'), 'Should contain SVG element');
-      assert.ok(decoded.includes('<path'), 'Should contain path element');
-      assert.ok(decoded.includes('fill="white"'), 'Should have white fill for masking');
-    });
+    assert.ok(svg.includes('radialGradient'));
+    assert.ok(svg.includes('feGaussianBlur'));
+    assert.ok(svg.includes('filter'));
   });
 
-  describe('Shape usage guidelines (FR #107)', () => {
-    it('circle is valid for core infrastructure layers', () => {
-      // Semiconductor Hubs, Data Centers, Startup Hubs
-      const icon = getMarkerIcon('circle', 1);
-      assert.ok(icon, 'Circle should be available');
-    });
+  it('tier 2 icon should contain radial gradient', () => {
+    const icon = getMarkerIcon('circle', 2);
+    const svg = atob(icon.url.replace('data:image/svg+xml;base64,', ''));
 
-    it('diamond is valid for professional/HQ layers', () => {
-      // Tech HQs, Accelerators
-      const icon = getMarkerIcon('diamond', 1);
-      assert.ok(icon, 'Diamond should be available');
-    });
+    assert.ok(svg.includes('radialGradient'));
+  });
 
-    it('triangle is valid for growth/unicorn layers', () => {
-      // Irish Unicorns
-      const icon = getMarkerIcon('triangle', 1);
-      assert.ok(icon, 'Triangle should be available');
-    });
+  it('tier 3 icon should be simple circles', () => {
+    const icon = getMarkerIcon('circle', 3);
+    const svg = atob(icon.url.replace('data:image/svg+xml;base64,', ''));
 
-    it('square is valid for foundation layers', () => {
-      // Cloud Regions
-      const icon = getMarkerIcon('square', 1);
-      assert.ok(icon, 'Square should be available');
-    });
+    assert.ok(svg.includes('<circle'));
+    // Tier 3 doesn't need heavy filters
+    assert.ok(!svg.includes('feGaussianBlur'));
+  });
+
+  it('all icons should use white fill for mask coloring', () => {
+    for (let tier = 1; tier <= 3; tier++) {
+      const icon = getMarkerIcon('circle', tier as 1 | 2 | 3);
+      const svg = atob(icon.url.replace('data:image/svg+xml;base64,', ''));
+      assert.ok(svg.includes('white'), `Tier ${tier} should use white fill`);
+    }
   });
 });
