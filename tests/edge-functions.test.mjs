@@ -62,6 +62,7 @@ describe('Legacy api/*.js endpoint allowlist', () => {
     'alerts.js',
     'bootstrap.js',
     'brief.js',
+    'briefs.js',
     'cache-purge.js',
     'contact.js',
     'download.js',
