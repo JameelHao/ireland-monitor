@@ -9,6 +9,7 @@ import { getSourcePropagandaRisk, getSourceTier, getSourceType } from '@/config/
 import { SITE_VARIANT } from '@/config';
 import { t, getCurrentLanguage } from '@/services/i18n';
 import { classifyCluster, classifyNewsItem, NewsTier, shouldShowHotBadge, extractFundingAmount } from '@/utils/newsClassifier';
+import { createShareButton, initShareButton } from './ShareButton';
 
 type SortMode = 'relevance' | 'newest';
 
@@ -694,6 +695,11 @@ export class NewsPanel extends Panel {
           <span class="top-sources">${topSourcesHtml}</span>
           <span class="item-time">${formatTime(cluster.lastUpdated)}</span>
           ${getCurrentLanguage() !== 'en' ? `<button class="item-translate-btn" title="Translate" data-text="${escapeHtml(cluster.primaryTitle)}">文</button>` : ''}
+          ${createShareButton({
+            url: cluster.primaryLink,
+            title: cluster.primaryTitle,
+            type: 'news',
+          }, { size: 'small', position: 'top' })}
         </div>
         ${relatedAssetsHtml}
       </div>
@@ -745,8 +751,8 @@ export class NewsPanel extends Panel {
   }
 
   private bindRelatedAssetEvents(): void {
-    // Event delegation is set up in setupContentDelegation() — this is now a no-op
-    // kept for WindowedList callback compatibility
+    // Initialize share buttons after rendering
+    initShareButton(this.content);
   }
 
   private getLocalizedAssetLabel(type: RelatedAsset['type']): string {

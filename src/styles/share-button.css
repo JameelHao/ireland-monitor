@@ -1,0 +1,292 @@
+/**
+ * Share Button Styles
+ *
+ * Styling for social sharing buttons and dropdown menus.
+ */
+
+/* ============================================================
+   Share Button Container
+   ============================================================ */
+.share-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.share-button-small {
+  margin-left: auto;
+}
+
+.share-button-normal .share-trigger {
+  padding: 6px 10px;
+}
+
+/* ============================================================
+   Share Trigger Button
+   ============================================================ */
+.share-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  background: transparent;
+  border: 1px solid var(--border-subtle, #334155);
+  border-radius: 4px;
+  color: var(--text-dim, #94a3b8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.share-trigger:hover {
+  background: var(--bg-hover, rgba(255, 255, 255, 0.05));
+  border-color: var(--text-dim, #64748b);
+  color: var(--text-primary, #e2e8f0);
+}
+
+.share-trigger:focus-visible {
+  outline: 2px solid var(--accent, #3B82F6);
+  outline-offset: 2px;
+}
+
+.share-trigger svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ============================================================
+   Share Menu Dropdown
+   ============================================================ */
+.share-menu {
+  position: absolute;
+  right: 0;
+  min-width: 140px;
+  padding: 4px;
+  background: var(--bg-primary, #0f172a);
+  border: 1px solid var(--border-subtle, #334155);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+  z-index: 1000;
+}
+
+.share-menu-top {
+  bottom: 100%;
+  margin-bottom: 6px;
+  transform: translateY(-8px);
+}
+
+.share-menu-bottom {
+  top: 100%;
+  margin-top: 6px;
+  transform: translateY(8px);
+}
+
+.share-menu.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   Share Options
+   ============================================================ */
+.share-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-primary, #e2e8f0);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.share-option:hover {
+  background: var(--bg-hover, rgba(255, 255, 255, 0.08));
+}
+
+.share-option:focus-visible {
+  outline: 2px solid var(--accent, #3B82F6);
+  outline-offset: -2px;
+}
+
+.share-icon {
+  width: 18px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Platform-specific icon colors */
+.share-option[data-action="twitter"] .share-icon {
+  color: #fff;
+}
+
+.share-option[data-action="linkedin"] .share-icon {
+  color: #0A66C2;
+  background: #fff;
+  border-radius: 2px;
+  font-size: 11px;
+  padding: 1px 2px;
+}
+
+/* ============================================================
+   Share Divider
+   ============================================================ */
+.share-divider {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--border-subtle, #334155);
+}
+
+/* ============================================================
+   Toast Notifications
+   ============================================================ */
+.share-toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.share-toast {
+  padding: 10px 20px;
+  background: var(--bg-primary, #1e293b);
+  border: 1px solid var(--border-subtle, #334155);
+  border-radius: 8px;
+  color: var(--text-primary, #e2e8f0);
+  font-size: 13px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.share-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.share-toast-success {
+  border-color: #22c55e;
+}
+
+.share-toast-error {
+  border-color: #ef4444;
+}
+
+/* ============================================================
+   Map Share Wrapper
+   ============================================================ */
+.map-share-wrapper {
+  display: inline-flex;
+}
+
+.map-share-wrapper .share-trigger {
+  background: var(--bg-primary, #1e293b);
+  padding: 6px 10px;
+}
+
+/* ============================================================
+   News Card Integration
+   ============================================================ */
+.item .share-button {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.item:hover .share-button {
+  opacity: 1;
+}
+
+/* Always show on touch devices */
+@media (hover: none) {
+  .item .share-button {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   Responsive Adjustments
+   ============================================================ */
+@media (max-width: 768px) {
+  .share-menu {
+    min-width: 130px;
+  }
+
+  .share-option {
+    padding: 10px 12px;
+  }
+
+  .share-toast-container {
+    bottom: 80px;
+    left: 16px;
+    right: 16px;
+    transform: none;
+  }
+
+  .share-toast {
+    text-align: center;
+  }
+}
+
+/* ============================================================
+   Light Theme
+   ============================================================ */
+[data-theme="light"] .share-trigger {
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+[data-theme="light"] .share-trigger:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+[data-theme="light"] .share-menu {
+  background: #fff;
+  border-color: #e2e8f0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .share-option {
+  color: #334155;
+}
+
+[data-theme="light"] .share-option:hover {
+  background: #f8fafc;
+}
+
+[data-theme="light"] .share-divider {
+  background: #e2e8f0;
+}
+
+[data-theme="light"] .share-toast {
+  background: #fff;
+  border-color: #e2e8f0;
+  color: #334155;
+}
+
+/* ============================================================
+   Reduced Motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .share-menu,
+  .share-toast {
+    transition: none;
+  }
+}
