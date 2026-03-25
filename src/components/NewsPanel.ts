@@ -8,6 +8,7 @@ import { analysisWorker, enrichWithVelocityML, getClusterAssetContext, MAX_DISTA
 import { getSourcePropagandaRisk, getSourceTier, getSourceType } from '@/config/feeds';
 import { SITE_VARIANT } from '@/config';
 import { t, getCurrentLanguage } from '@/services/i18n';
+import { classifyCluster, classifyNewsItem, NewsTier, shouldShowHotBadge, extractFundingAmount } from '@/utils/newsClassifier';
 
 type SortMode = 'relevance' | 'newest';
 
@@ -438,12 +439,25 @@ export class NewsPanel extends Panel {
 
     const html = sorted
       .map(
-        (item) => `
-      <div class="item ${item.isAlert ? 'alert' : ''}" ${item.monitorColor ? `style="border-inline-start-color: ${escapeHtml(item.monitorColor)}"` : ''}>
+        (item) => {
+          // Visual tier classification (FR #134)
+          const pubDate = item.pubDate instanceof Date ? item.pubDate : new Date(item.pubDate);
+          const newsTier = classifyNewsItem(item);
+          const showHotBadge = shouldShowHotBadge(newsTier, pubDate);
+          const hotBadgeHtml = showHotBadge ? '<span class="hot-badge">🔥 HOT</span>' : '';
+          const fundingAmount = extractFundingAmount(item.title);
+          const fundingBadgeHtml = newsTier === NewsTier.Important && fundingAmount && fundingAmount >= 10_000_000
+            ? `<span class="funding-badge">💰 €${Math.round(fundingAmount / 1_000_000)}M</span>`
+            : '';
+
+          return `
+      <div class="item tier-${newsTier} ${item.isAlert ? 'alert' : ''}" ${item.monitorColor ? `style="border-inline-start-color: ${escapeHtml(item.monitorColor)}"` : ''}>
+        ${hotBadgeHtml}
         <div class="item-source">
           ${escapeHtml(item.source)}
           ${item.lang && item.lang !== getCurrentLanguage() ? `<span class="lang-badge">${item.lang.toUpperCase()}</span>` : ''}
           ${item.isAlert ? '<span class="alert-tag">ALERT</span>' : ''}
+          ${fundingBadgeHtml}
         </div>
         <a class="item-title" href="${sanitizeUrl(item.link)}" target="_blank" rel="noopener">${escapeHtml(item.title)}</a>
         <div class="item-time">
@@ -451,7 +465,8 @@ export class NewsPanel extends Panel {
           ${getCurrentLanguage() !== 'en' ? `<button class="item-translate-btn" title="Translate" data-text="${escapeHtml(item.title)}">文</button>` : ''}
         </div>
       </div>
-    `
+    `;
+        }
       )
       .join('');
 
@@ -635,10 +650,22 @@ export class NewsPanel extends Panel {
       ? `<span class="category-tag" style="color:${catColor};border-color:${catColor}40;background:${catColor}20">${catLabel}</span>`
       : '';
 
+    // Visual tier classification (FR #134)
+    const newsTier = classifyCluster(cluster);
+    const showHotBadge = shouldShowHotBadge(newsTier, cluster.lastUpdated);
+    const hotBadgeHtml = showHotBadge ? '<span class="hot-badge">🔥 HOT</span>' : '';
+
+    // Funding badge for tier-1 news with funding amounts
+    const fundingAmount = extractFundingAmount(cluster.primaryTitle);
+    const fundingBadgeHtml = newsTier === NewsTier.Important && fundingAmount && fundingAmount >= 10_000_000
+      ? `<span class="funding-badge">💰 €${Math.round(fundingAmount / 1_000_000)}M</span>`
+      : '';
+
     // Build class list for item
     const itemClasses = [
       'item',
       'clustered',
+      `tier-${newsTier}`,
       cluster.isAlert ? 'alert' : '',
       shouldHighlight ? 'item-new-highlight' : '',
       isNew ? 'item-new' : '',
@@ -646,6 +673,7 @@ export class NewsPanel extends Panel {
 
     return `
       <div class="${itemClasses}" ${cluster.monitorColor ? `style="border-inline-start-color: ${escapeHtml(cluster.monitorColor)}"` : ''} data-cluster-id="${escapeHtml(cluster.id)}" data-news-id="${escapeHtml(cluster.primaryLink)}">
+        ${hotBadgeHtml}
         <div class="item-source">
           ${tierBadge}
           ${escapeHtml(cluster.primarySource)}
@@ -657,6 +685,7 @@ export class NewsPanel extends Panel {
           ${sentimentBadge}
           ${cluster.isAlert ? '<span class="alert-tag">ALERT</span>' : ''}
           ${categoryBadge}
+          ${fundingBadgeHtml}
         </div>
         <a class="item-title" href="${sanitizeUrl(cluster.primaryLink)}" target="_blank" rel="noopener">${escapeHtml(cluster.primaryTitle)}</a>
         <div class="cluster-meta">
