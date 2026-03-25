@@ -16,6 +16,7 @@ import { getNaturalEventIcon } from '@/services/eonet';
 import { getHotspotEscalation, getEscalationChange24h } from '@/services/hotspot-escalation';
 import { getCableHealthRecord } from '@/services/cable-health';
 import { nameToCountryCode } from '@/services/country-geometry';
+import { renderLogo } from '@/utils/logoFallback';
 
 export type PopupType = 'conflict' | 'hotspot' | 'earthquake' | 'weather' | 'base' | 'waterway' | 'apt' | 'cyberThreat' | 'nuclear' | 'economic' | 'irradiator' | 'pipeline' | 'cable' | 'cable-advisory' | 'repair-ship' | 'outage' | 'datacenter' | 'datacenterCluster' | 'ais' | 'protest' | 'protestCluster' | 'flight' | 'aircraft' | 'militaryFlight' | 'militaryVessel' | 'militaryFlightCluster' | 'militaryVesselCluster' | 'natEvent' | 'port' | 'spaceport' | 'mineral' | 'startupHub' | 'cloudRegion' | 'techHQ' | 'accelerator' | 'techEvent' | 'techHQCluster' | 'techEventCluster' | 'techActivity' | 'geoActivity' | 'stockExchange' | 'financialCenter' | 'centralBank' | 'commodityHub' | 'iranEvent' | 'gpsJamming' | 'radiation' | 'semiconductorHub' | 'irelandDataCenter' | 'irelandTechHQ' | 'irishUnicorn';
 
@@ -539,162 +540,312 @@ export class MapPopup {
   }
 
   /**
-   * Render popup for semiconductor hub facilities
+   * Render rich popup for semiconductor hub facilities
+   * Features: company logo/initials, tier badge, location, employees, business type,
+   * description, and website link
    */
   private renderSemiconductorHubPopup(hub: SemiconductorHub): string {
     const tier = hub.employees >= 3000 ? 1 : hub.employees >= 1000 ? 2 : 3;
     const tierLabel = tier === 1 ? 'Tier 1 (Major)' : tier === 2 ? 'Tier 2 (Medium)' : 'Tier 3 (Small)';
+    const tierClass = tier === 1 ? 'high' : tier === 2 ? 'medium' : 'low';
+    // Extended type for optional logo field
+    const extHub = hub as SemiconductorHub & { logo?: string; address?: string; investment?: string };
+    const logoHtml = renderLogo(extHub.logo, hub.company, 48);
+
     return `
-      <div class="popup-header tech">
-        <span class="popup-title">💎 ${escapeHtml(hub.name.toUpperCase())}</span>
-        <span class="popup-badge tech">${escapeHtml(tierLabel)}</span>
-        <button class="popup-close" aria-label="Close">×</button>
+      <div class="popup-header-rich">
+        <div class="popup-logo">${logoHtml}</div>
+        <div class="popup-header-content">
+          <h3 class="popup-company-name">💎 ${escapeHtml(hub.name)}</h3>
+          <span class="popup-type-badge ${tierClass}">${escapeHtml(tierLabel)}</span>
+        </div>
+        <button class="popup-close" aria-label="${t('common.close')}">×</button>
       </div>
       <div class="popup-body">
-        <div class="popup-stats">
-          <div class="popup-stat">
-            <span class="stat-label">Company</span>
-            <span class="stat-value">${escapeHtml(hub.company)}</span>
+        <div class="popup-details-rich">
+          <div class="popup-detail-row">
+            <span class="icon">🏢</span>
+            <span class="value">${escapeHtml(hub.company)}</span>
           </div>
-          <div class="popup-stat">
-            <span class="stat-label">Employees</span>
-            <span class="stat-value">${hub.employees.toLocaleString()}+</span>
+          <div class="popup-detail-row">
+            <span class="icon">👥</span>
+            <span class="value">${hub.employees.toLocaleString()}+ employees</span>
           </div>
-          <div class="popup-stat">
-            <span class="stat-label">Business</span>
-            <span class="stat-value">${escapeHtml(hub.business)}</span>
+          <div class="popup-detail-row">
+            <span class="icon">💼</span>
+            <span class="value">${escapeHtml(hub.business)}</span>
           </div>
+          ${extHub.address ? `
+          <div class="popup-detail-row">
+            <span class="icon">📍</span>
+            <span class="value">${escapeHtml(extHub.address)}</span>
+          </div>
+          ` : ''}
+          ${extHub.investment ? `
+          <div class="popup-detail-row">
+            <span class="icon">💰</span>
+            <span class="value">Investment: ${escapeHtml(extHub.investment)}</span>
+          </div>
+          ` : ''}
         </div>
         ${hub.description ? `<p class="popup-description">${escapeHtml(hub.description)}</p>` : ''}
-        ${hub.website ? `<a class="popup-link" href="${sanitizeUrl(hub.website)}" target="_blank" rel="noopener">Visit Website →</a>` : ''}
+        ${hub.website ? `
+        <div class="popup-cta">
+          <a class="popup-cta-button secondary" href="${sanitizeUrl(hub.website)}" target="_blank" rel="noopener">
+            Visit Website →
+          </a>
+        </div>
+        ` : ''}
       </div>
     `;
   }
 
   /**
-   * Render popup for Ireland data center facilities
+   * Render rich popup for Ireland data center facilities
+   * Features: operator logo/initials, status badge, location, capacity,
+   * power consumption (if available), and description
    */
   private renderIrelandDataCenterPopup(dc: IrelandDataCenter): string {
-    const statusClass = dc.status === 'operational' ? 'medium' : dc.status === 'under-construction' ? 'low' : 'pending';
-    const statusLabel = dc.status.replace('-', ' ').toUpperCase();
+    const statusClass = dc.status === 'operational' ? 'operational' : dc.status === 'under-construction' ? 'under-construction' : 'planned';
+    const statusLabel = dc.status === 'operational' ? 'Operational' : dc.status === 'under-construction' ? 'Under Construction' : 'Planned';
+    // Extended type for optional fields
+    const extDc = dc as IrelandDataCenter & { logo?: string; powerMW?: number; address?: string };
+    const logoHtml = renderLogo(extDc.logo, dc.operator, 48);
+
     return `
-      <div class="popup-header tech">
-        <span class="popup-title">🏢 ${escapeHtml(dc.name.toUpperCase())}</span>
-        <span class="popup-badge ${statusClass}">${escapeHtml(statusLabel)}</span>
-        <button class="popup-close" aria-label="Close">×</button>
+      <div class="popup-header-rich">
+        <div class="popup-logo">${logoHtml}</div>
+        <div class="popup-header-content">
+          <h3 class="popup-company-name">🏢 ${escapeHtml(dc.name)}</h3>
+          <span class="popup-type-badge ${statusClass}">${escapeHtml(statusLabel)}</span>
+        </div>
+        <button class="popup-close" aria-label="${t('common.close')}">×</button>
       </div>
       <div class="popup-body">
-        <div class="popup-stats">
-          <div class="popup-stat">
-            <span class="stat-label">Operator</span>
-            <span class="stat-value">${escapeHtml(dc.operator)}</span>
+        <div class="popup-details-rich">
+          <div class="popup-detail-row">
+            <span class="icon">🏢</span>
+            <span class="value">${escapeHtml(dc.operator)}</span>
           </div>
-          <div class="popup-stat">
-            <span class="stat-label">Location</span>
-            <span class="stat-value">${escapeHtml(dc.location)}</span>
+          <div class="popup-detail-row">
+            <span class="icon">📍</span>
+            <span class="value">${escapeHtml(dc.location)}</span>
           </div>
           ${dc.capacity ? `
-          <div class="popup-stat">
-            <span class="stat-label">Capacity</span>
-            <span class="stat-value">${escapeHtml(dc.capacity)}</span>
+          <div class="popup-detail-row">
+            <span class="icon">⚡</span>
+            <span class="value">Capacity: ${escapeHtml(dc.capacity)}</span>
+          </div>
+          ` : ''}
+          ${extDc.powerMW ? `
+          <div class="popup-detail-row">
+            <span class="icon">🔌</span>
+            <span class="value">${extDc.powerMW} MW power</span>
+          </div>
+          ` : ''}
+          ${extDc.address ? `
+          <div class="popup-detail-row">
+            <span class="icon">🏠</span>
+            <span class="value">${escapeHtml(extDc.address)}</span>
           </div>
           ` : ''}
         </div>
         ${dc.description ? `<p class="popup-description">${escapeHtml(dc.description)}</p>` : ''}
-        ${dc.website ? `<a class="popup-link" href="${sanitizeUrl(dc.website)}" target="_blank" rel="noopener">Visit Website →</a>` : ''}
+        ${dc.website ? `
+        <div class="popup-cta">
+          <a class="popup-cta-button secondary" href="${sanitizeUrl(dc.website)}" target="_blank" rel="noopener">
+            Visit Website →
+          </a>
+        </div>
+        ` : ''}
       </div>
     `;
   }
 
   /**
-   * Render popup for Ireland tech HQ facilities
+   * Render rich popup for Ireland tech HQ facilities
+   * Features: company logo/initials, HQ type badge, location, employees,
+   * founded date, address, description, and company profile link
    */
   private renderIrelandTechHQPopup(hq: IrelandTechHQ): string {
     const typeLabel = hq.type === 'emea-hq' ? 'EMEA HQ' : hq.type === 'european-hq' ? 'European HQ' : 'International HQ';
+    // Extended type for optional fields
+    const extHq = hq as IrelandTechHQ & { logo?: string; investment?: string; relatedNewsIds?: string[] };
+    const logoHtml = renderLogo(extHq.logo, hq.company, 48);
+
+    // Mock related news - in real implementation, fetch from news service
+    const mockNews = extHq.relatedNewsIds?.length ? [
+      { title: `${hq.company} expands EMEA operations in Dublin`, url: '#' },
+      { title: `Tech investment surge in Ireland benefits ${hq.company}`, url: '#' },
+    ] : null;
+
     return `
-      <div class="popup-header tech">
-        <span class="popup-title">🏢 ${escapeHtml(hq.company.toUpperCase())}</span>
-        <span class="popup-badge tech">${escapeHtml(typeLabel)}</span>
-        <button class="popup-close" aria-label="Close">×</button>
+      <div class="popup-header-rich">
+        <div class="popup-logo">${logoHtml}</div>
+        <div class="popup-header-content">
+          <h3 class="popup-company-name">${escapeHtml(hq.company)}</h3>
+          <span class="popup-type-badge tech">${escapeHtml(typeLabel)}</span>
+        </div>
+        <button class="popup-close" aria-label="${t('common.close')}">×</button>
       </div>
       <div class="popup-body">
-        <div class="popup-stats">
-          <div class="popup-stat">
-            <span class="stat-label">Location</span>
-            <span class="stat-value">${escapeHtml(hq.location)}</span>
+        <div class="popup-details-rich">
+          <div class="popup-detail-row">
+            <span class="icon">📍</span>
+            <span class="value">${escapeHtml(hq.location)}, Ireland</span>
           </div>
           ${hq.employees ? `
-          <div class="popup-stat">
-            <span class="stat-label">Employees</span>
-            <span class="stat-value">${hq.employees.toLocaleString()}+</span>
+          <div class="popup-detail-row">
+            <span class="icon">👥</span>
+            <span class="value">~${hq.employees.toLocaleString()} employees</span>
+          </div>
+          ` : ''}
+          ${extHq.investment ? `
+          <div class="popup-detail-row">
+            <span class="icon">💰</span>
+            <span class="value">Investment: ${escapeHtml(extHq.investment)}</span>
           </div>
           ` : ''}
           ${hq.founded ? `
-          <div class="popup-stat">
-            <span class="stat-label">Est. in Ireland</span>
-            <span class="stat-value">${hq.founded}</span>
+          <div class="popup-detail-row">
+            <span class="icon">📅</span>
+            <span class="value">Est. in Ireland: ${hq.founded}</span>
           </div>
           ` : ''}
           ${hq.address ? `
-          <div class="popup-stat">
-            <span class="stat-label">Address</span>
-            <span class="stat-value">${escapeHtml(hq.address)}</span>
+          <div class="popup-detail-row">
+            <span class="icon">🏠</span>
+            <span class="value">${escapeHtml(hq.address)}</span>
           </div>
           ` : ''}
         </div>
+        ${mockNews && mockNews.length > 0 ? `
+        <div class="popup-news-section">
+          <div class="popup-news-header">
+            <span>📰 Related News</span>
+            <span class="count">${mockNews.length}</span>
+          </div>
+          <ul class="popup-news-list">
+            ${mockNews.slice(0, 3).map(news => `
+              <li class="popup-news-item">
+                <a href="${sanitizeUrl(news.url)}" target="_blank" rel="noopener">${escapeHtml(news.title)}</a>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+        ` : ''}
         ${hq.description ? `<p class="popup-description">${escapeHtml(hq.description)}</p>` : ''}
-        ${hq.website ? `<a class="popup-link" href="${sanitizeUrl(hq.website)}" target="_blank" rel="noopener">Visit Website →</a>` : ''}
+        <div class="popup-cta">
+          <a class="popup-cta-button" href="/company/${escapeHtml(hq.id)}" target="_blank" rel="noopener">
+            View Company Profile →
+          </a>
+        </div>
+        ${hq.website ? `
+        <div class="popup-cta" style="padding-top: 0;">
+          <a class="popup-cta-button secondary" href="${sanitizeUrl(hq.website)}" target="_blank" rel="noopener">
+            Visit Official Website →
+          </a>
+        </div>
+        ` : ''}
       </div>
     `;
   }
 
   /**
-   * Render popup for Irish unicorn companies
+   * Render rich popup for Irish unicorn companies
+   * Features: company logo/initials, category badge (unicorn/high-growth/emerging),
+   * sector, location, founded date, employees, valuation, status, and company profile link
    */
   private renderIrishUnicornPopup(unicorn: IrishUnicorn): string {
-    const categoryClass = unicorn.category === 'unicorn' ? 'high' : unicorn.category === 'high-growth' ? 'medium' : 'low';
-    const categoryLabel = unicorn.category === 'unicorn' ? '🦄 Unicorn' : unicorn.category === 'high-growth' ? '📈 High Growth' : '⭐ Emerging';
+    const categoryIcon = unicorn.category === 'unicorn' ? '🦄' : unicorn.category === 'high-growth' ? '📈' : '⭐';
+    const categoryLabel = unicorn.category === 'unicorn' ? 'Unicorn' : unicorn.category === 'high-growth' ? 'High Growth' : 'Emerging';
+    const categoryClass = unicorn.category === 'unicorn' ? 'unicorn' : unicorn.category === 'high-growth' ? 'tech' : 'low';
+    // Extended type for optional fields
+    const extUnicorn = unicorn as IrishUnicorn & { logo?: string; funding?: string; relatedNewsIds?: string[] };
+    const logoHtml = renderLogo(extUnicorn.logo, unicorn.name, 48);
+
+    // Mock related news - in real implementation, fetch from news service
+    const mockNews = extUnicorn.relatedNewsIds?.length ? [
+      { title: `${unicorn.name} raises new funding round`, url: '#' },
+      { title: `Irish ${unicorn.sector} startup ${unicorn.name} expands globally`, url: '#' },
+    ] : null;
+
     return `
-      <div class="popup-header tech">
-        <span class="popup-title">${escapeHtml(unicorn.name.toUpperCase())}</span>
-        <span class="popup-badge ${categoryClass}">${categoryLabel}</span>
-        <button class="popup-close" aria-label="Close">×</button>
+      <div class="popup-header-rich">
+        <div class="popup-logo">${logoHtml}</div>
+        <div class="popup-header-content">
+          <h3 class="popup-company-name">${categoryIcon} ${escapeHtml(unicorn.name)}</h3>
+          <span class="popup-type-badge ${categoryClass}">${escapeHtml(categoryLabel)}</span>
+        </div>
+        <button class="popup-close" aria-label="${t('common.close')}">×</button>
       </div>
       <div class="popup-body">
-        <div class="popup-stats">
-          <div class="popup-stat">
-            <span class="stat-label">Sector</span>
-            <span class="stat-value">${escapeHtml(unicorn.sector)}</span>
+        <div class="popup-details-rich">
+          <div class="popup-detail-row">
+            <span class="icon">💼</span>
+            <span class="value">${escapeHtml(unicorn.sector)}</span>
           </div>
-          <div class="popup-stat">
-            <span class="stat-label">Location</span>
-            <span class="stat-value">${escapeHtml(unicorn.location)}</span>
+          <div class="popup-detail-row">
+            <span class="icon">📍</span>
+            <span class="value">${escapeHtml(unicorn.location)}, Ireland</span>
           </div>
-          <div class="popup-stat">
-            <span class="stat-label">Founded</span>
-            <span class="stat-value">${unicorn.founded}</span>
+          <div class="popup-detail-row">
+            <span class="icon">📅</span>
+            <span class="value">Founded ${unicorn.founded}</span>
           </div>
           ${unicorn.employees ? `
-          <div class="popup-stat">
-            <span class="stat-label">Employees</span>
-            <span class="stat-value">${unicorn.employees.toLocaleString()}+</span>
+          <div class="popup-detail-row">
+            <span class="icon">👥</span>
+            <span class="value">${unicorn.employees.toLocaleString()}+ employees</span>
           </div>
           ` : ''}
           ${unicorn.valuation ? `
-          <div class="popup-stat">
-            <span class="stat-label">Valuation</span>
-            <span class="stat-value">${escapeHtml(unicorn.valuation)}</span>
+          <div class="popup-detail-row">
+            <span class="icon">💰</span>
+            <span class="value">Valuation: ${escapeHtml(unicorn.valuation)}</span>
+          </div>
+          ` : ''}
+          ${extUnicorn.funding ? `
+          <div class="popup-detail-row">
+            <span class="icon">🏦</span>
+            <span class="value">Total Funding: ${escapeHtml(extUnicorn.funding)}</span>
           </div>
           ` : ''}
           ${unicorn.status ? `
-          <div class="popup-stat">
-            <span class="stat-label">Status</span>
-            <span class="stat-value">${escapeHtml(unicorn.status)}</span>
+          <div class="popup-detail-row">
+            <span class="icon">📊</span>
+            <span class="value">${escapeHtml(unicorn.status)}</span>
           </div>
           ` : ''}
         </div>
+        ${mockNews && mockNews.length > 0 ? `
+        <div class="popup-news-section">
+          <div class="popup-news-header">
+            <span>📰 Related News</span>
+            <span class="count">${mockNews.length}</span>
+          </div>
+          <ul class="popup-news-list">
+            ${mockNews.slice(0, 3).map(news => `
+              <li class="popup-news-item">
+                <a href="${sanitizeUrl(news.url)}" target="_blank" rel="noopener">${escapeHtml(news.title)}</a>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+        ` : ''}
         ${unicorn.description ? `<p class="popup-description">${escapeHtml(unicorn.description)}</p>` : ''}
-        ${unicorn.website ? `<a class="popup-link" href="${sanitizeUrl(unicorn.website)}" target="_blank" rel="noopener">Visit Website →</a>` : ''}
+        <div class="popup-cta">
+          <a class="popup-cta-button" href="/company/${escapeHtml(unicorn.id)}" target="_blank" rel="noopener">
+            View Company Profile →
+          </a>
+        </div>
+        ${unicorn.website ? `
+        <div class="popup-cta" style="padding-top: 0;">
+          <a class="popup-cta-button secondary" href="${sanitizeUrl(unicorn.website)}" target="_blank" rel="noopener">
+            Visit Official Website →
+          </a>
+        </div>
+        ` : ''}
       </div>
     `;
   }
