@@ -5,7 +5,8 @@
  * related news, and company profile links.
  */
 
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
 import { renderLogo, getInitials, getInitialsBackground, renderInitialsPlaceholder } from '../src/utils/logoFallback';
 import { getCompanyInitials } from '../src/types/marker';
 
@@ -16,25 +17,25 @@ import { getCompanyInitials } from '../src/types/marker';
 describe('logoFallback utility', () => {
   describe('getInitials', () => {
     it('should extract initials from single word', () => {
-      expect(getInitials('Google')).toBe('GO');
-      expect(getInitials('Meta')).toBe('ME');
-      expect(getInitials('X')).toBe('X');
+      assert.equal(getInitials('Google'), 'GO');
+      assert.equal(getInitials('Meta'), 'ME');
+      assert.equal(getInitials('X'), 'X');
     });
 
     it('should extract initials from multiple words', () => {
-      expect(getInitials('Intel Corporation')).toBe('IC');
-      expect(getInitials('Amazon Web Services')).toBe('AW');
-      expect(getInitials('New York Times')).toBe('NY');
+      assert.equal(getInitials('Intel Corporation'), 'IC');
+      assert.equal(getInitials('Amazon Web Services'), 'AW');
+      assert.equal(getInitials('New York Times'), 'NY');
     });
 
     it('should handle empty string', () => {
-      expect(getInitials('')).toBe('?');
-      expect(getInitials('   ')).toBe('?');
+      assert.equal(getInitials(''), '?');
+      assert.equal(getInitials('   '), '?');
     });
 
     it('should handle extra whitespace', () => {
-      expect(getInitials('  Google  ')).toBe('GO');
-      expect(getInitials('Intel   Corporation')).toBe('IC');
+      assert.equal(getInitials('  Google  '), 'GO');
+      assert.equal(getInitials('Intel   Corporation'), 'IC');
     });
   });
 
@@ -42,60 +43,60 @@ describe('logoFallback utility', () => {
     it('should return consistent colors for same input', () => {
       const color1 = getInitialsBackground('Google');
       const color2 = getInitialsBackground('Google');
-      expect(color1).toBe(color2);
+      assert.equal(color1, color2);
     });
 
     it('should return different colors for different inputs', () => {
       const colorGoogle = getInitialsBackground('Google');
       const colorApple = getInitialsBackground('Apple');
-      expect(colorGoogle).not.toBe(colorApple);
+      assert.notEqual(colorGoogle, colorApple);
     });
 
     it('should return valid HSL color', () => {
       const color = getInitialsBackground('Test');
-      expect(color).toMatch(/^hsl\(\d+, 45%, 35%\)$/);
+      assert.match(color, /^hsl\(\d+, 45%, 35%\)$/);
     });
   });
 
   describe('renderInitialsPlaceholder', () => {
     it('should render div with initials', () => {
       const html = renderInitialsPlaceholder('Google', 48);
-      expect(html).toContain('GO');
-      expect(html).toContain('logo-initials');
-      expect(html).toContain('48px');
+      assert.ok(html.includes('GO'));
+      assert.ok(html.includes('logo-initials'));
+      assert.ok(html.includes('48px'));
     });
 
     it('should use default size when not specified', () => {
       const html = renderInitialsPlaceholder('Apple');
-      expect(html).toContain('48px');
+      assert.ok(html.includes('48px'));
     });
 
     it('should scale font size with element size', () => {
       const html32 = renderInitialsPlaceholder('Test', 32);
       const html64 = renderInitialsPlaceholder('Test', 64);
-      expect(html32).toContain('font-size: 13px'); // 32 * 0.4 ≈ 13
-      expect(html64).toContain('font-size: 26px'); // 64 * 0.4 ≈ 26
+      assert.ok(html32.includes('font-size: 13px')); // 32 * 0.4 ≈ 13
+      assert.ok(html64.includes('font-size: 26px')); // 64 * 0.4 ≈ 26
     });
   });
 
   describe('renderLogo', () => {
     it('should render img tag when logo URL is provided', () => {
       const html = renderLogo('https://example.com/logo.png', 'Company', 48);
-      expect(html).toContain('<img');
-      expect(html).toContain('src="https://example.com/logo.png"');
-      expect(html).toContain('company-logo');
+      assert.ok(html.includes('<img'));
+      assert.ok(html.includes('src="https://example.com/logo.png"'));
+      assert.ok(html.includes('company-logo'));
     });
 
     it('should render initials fallback when no logo URL', () => {
       const html = renderLogo(undefined, 'Google', 48);
-      expect(html).toContain('logo-initials');
-      expect(html).toContain('GO');
+      assert.ok(html.includes('logo-initials'));
+      assert.ok(html.includes('GO'));
     });
 
     it('should include onerror handler for image fallback', () => {
       const html = renderLogo('https://example.com/logo.png', 'Test', 48);
-      expect(html).toContain('onerror=');
-      expect(html).toContain('TE'); // Fallback initials
+      assert.ok(html.includes('onerror='));
+      assert.ok(html.includes('TE')); // Fallback initials
     });
   });
 });
@@ -107,14 +108,14 @@ describe('logoFallback utility', () => {
 describe('marker types', () => {
   describe('getCompanyInitials', () => {
     it('should extract initials from company name', () => {
-      expect(getCompanyInitials('Intel Corporation')).toBe('IC');
-      expect(getCompanyInitials('Google')).toBe('GO');
-      expect(getCompanyInitials('Amazon Web Services')).toBe('AW');
+      assert.equal(getCompanyInitials('Intel Corporation'), 'IC');
+      assert.equal(getCompanyInitials('Google'), 'GO');
+      assert.equal(getCompanyInitials('Amazon Web Services'), 'AW');
     });
 
     it('should handle single word names', () => {
-      expect(getCompanyInitials('Meta')).toBe('ME');
-      expect(getCompanyInitials('X')).toBe('X');
+      assert.equal(getCompanyInitials('Meta'), 'ME');
+      assert.equal(getCompanyInitials('X'), 'X');
     });
   });
 });
@@ -124,9 +125,6 @@ describe('marker types', () => {
 // ==============================================================
 
 describe('popup content structure', () => {
-  // These tests verify expected HTML structure elements
-  // In a real test environment, we would instantiate MapPopup and test rendering
-
   it('should define expected popup types', () => {
     const popupTypes = [
       'semiconductorHub',
@@ -135,11 +133,10 @@ describe('popup content structure', () => {
       'irishUnicorn',
     ];
 
-    // Verify popup types are documented
-    expect(popupTypes).toContain('semiconductorHub');
-    expect(popupTypes).toContain('irelandDataCenter');
-    expect(popupTypes).toContain('irelandTechHQ');
-    expect(popupTypes).toContain('irishUnicorn');
+    assert.ok(popupTypes.includes('semiconductorHub'));
+    assert.ok(popupTypes.includes('irelandDataCenter'));
+    assert.ok(popupTypes.includes('irelandTechHQ'));
+    assert.ok(popupTypes.includes('irishUnicorn'));
   });
 
   it('should have correct popup CSS classes defined', () => {
@@ -159,9 +156,8 @@ describe('popup content structure', () => {
       'popup-cta-button',
     ];
 
-    // Document expected classes - actual CSS validation would require DOM
     expectedClasses.forEach(cls => {
-      expect(cls).toMatch(/^popup-/);
+      assert.match(cls, /^popup-/);
     });
   });
 });
@@ -173,82 +169,82 @@ describe('popup content structure', () => {
 describe('ireland data integration', () => {
   it('should import semiconductor hubs data', async () => {
     const { IRELAND_SEMICONDUCTOR_HUBS } = await import('../src/config/variants/ireland/data');
-    expect(IRELAND_SEMICONDUCTOR_HUBS).toBeDefined();
-    expect(Array.isArray(IRELAND_SEMICONDUCTOR_HUBS)).toBe(true);
-    expect(IRELAND_SEMICONDUCTOR_HUBS.length).toBeGreaterThan(0);
+    assert.ok(IRELAND_SEMICONDUCTOR_HUBS);
+    assert.ok(Array.isArray(IRELAND_SEMICONDUCTOR_HUBS));
+    assert.ok(IRELAND_SEMICONDUCTOR_HUBS.length > 0);
   });
 
   it('should import data centers data', async () => {
     const { IRELAND_DATA_CENTERS } = await import('../src/config/variants/ireland/data');
-    expect(IRELAND_DATA_CENTERS).toBeDefined();
-    expect(Array.isArray(IRELAND_DATA_CENTERS)).toBe(true);
-    expect(IRELAND_DATA_CENTERS.length).toBeGreaterThan(0);
+    assert.ok(IRELAND_DATA_CENTERS);
+    assert.ok(Array.isArray(IRELAND_DATA_CENTERS));
+    assert.ok(IRELAND_DATA_CENTERS.length > 0);
   });
 
   it('should import tech HQs data', async () => {
     const { IRELAND_TECH_HQS } = await import('../src/config/variants/ireland/data');
-    expect(IRELAND_TECH_HQS).toBeDefined();
-    expect(Array.isArray(IRELAND_TECH_HQS)).toBe(true);
-    expect(IRELAND_TECH_HQS.length).toBeGreaterThan(0);
+    assert.ok(IRELAND_TECH_HQS);
+    assert.ok(Array.isArray(IRELAND_TECH_HQS));
+    assert.ok(IRELAND_TECH_HQS.length > 0);
   });
 
   it('should import unicorns data', async () => {
     const { IRISH_UNICORNS } = await import('../src/config/variants/ireland/data');
-    expect(IRISH_UNICORNS).toBeDefined();
-    expect(Array.isArray(IRISH_UNICORNS)).toBe(true);
-    expect(IRISH_UNICORNS.length).toBeGreaterThan(0);
+    assert.ok(IRISH_UNICORNS);
+    assert.ok(Array.isArray(IRISH_UNICORNS));
+    assert.ok(IRISH_UNICORNS.length > 0);
   });
 
   it('semiconductor hub should have required fields', async () => {
     const { IRELAND_SEMICONDUCTOR_HUBS } = await import('../src/config/variants/ireland/data');
     const hub = IRELAND_SEMICONDUCTOR_HUBS[0];
 
-    expect(hub).toHaveProperty('id');
-    expect(hub).toHaveProperty('name');
-    expect(hub).toHaveProperty('company');
-    expect(hub).toHaveProperty('lat');
-    expect(hub).toHaveProperty('lng');
-    expect(hub).toHaveProperty('employees');
-    expect(hub).toHaveProperty('business');
+    assert.ok('id' in hub);
+    assert.ok('name' in hub);
+    assert.ok('company' in hub);
+    assert.ok('lat' in hub);
+    assert.ok('lng' in hub);
+    assert.ok('employees' in hub);
+    assert.ok('business' in hub);
   });
 
   it('data center should have required fields', async () => {
     const { IRELAND_DATA_CENTERS } = await import('../src/config/variants/ireland/data');
     const dc = IRELAND_DATA_CENTERS[0];
 
-    expect(dc).toHaveProperty('id');
-    expect(dc).toHaveProperty('name');
-    expect(dc).toHaveProperty('operator');
-    expect(dc).toHaveProperty('location');
-    expect(dc).toHaveProperty('lat');
-    expect(dc).toHaveProperty('lng');
-    expect(dc).toHaveProperty('status');
+    assert.ok('id' in dc);
+    assert.ok('name' in dc);
+    assert.ok('operator' in dc);
+    assert.ok('location' in dc);
+    assert.ok('lat' in dc);
+    assert.ok('lng' in dc);
+    assert.ok('status' in dc);
   });
 
   it('tech HQ should have required fields', async () => {
     const { IRELAND_TECH_HQS } = await import('../src/config/variants/ireland/data');
     const hq = IRELAND_TECH_HQS[0];
 
-    expect(hq).toHaveProperty('id');
-    expect(hq).toHaveProperty('company');
-    expect(hq).toHaveProperty('type');
-    expect(hq).toHaveProperty('location');
-    expect(hq).toHaveProperty('lat');
-    expect(hq).toHaveProperty('lng');
+    assert.ok('id' in hq);
+    assert.ok('company' in hq);
+    assert.ok('type' in hq);
+    assert.ok('location' in hq);
+    assert.ok('lat' in hq);
+    assert.ok('lng' in hq);
   });
 
   it('unicorn should have required fields', async () => {
     const { IRISH_UNICORNS } = await import('../src/config/variants/ireland/data');
     const unicorn = IRISH_UNICORNS[0];
 
-    expect(unicorn).toHaveProperty('id');
-    expect(unicorn).toHaveProperty('name');
-    expect(unicorn).toHaveProperty('location');
-    expect(unicorn).toHaveProperty('lat');
-    expect(unicorn).toHaveProperty('lng');
-    expect(unicorn).toHaveProperty('category');
-    expect(unicorn).toHaveProperty('sector');
-    expect(unicorn).toHaveProperty('founded');
+    assert.ok('id' in unicorn);
+    assert.ok('name' in unicorn);
+    assert.ok('location' in unicorn);
+    assert.ok('lat' in unicorn);
+    assert.ok('lng' in unicorn);
+    assert.ok('category' in unicorn);
+    assert.ok('sector' in unicorn);
+    assert.ok('founded' in unicorn);
   });
 });
 
@@ -263,11 +259,11 @@ describe('popup tier calculation', () => {
       return employees >= 3000 ? 1 : employees >= 1000 ? 2 : 3;
     };
 
-    expect(calculateTier(4000)).toBe(1);
-    expect(calculateTier(3000)).toBe(1);
-    expect(calculateTier(2000)).toBe(2);
-    expect(calculateTier(1000)).toBe(2);
-    expect(calculateTier(500)).toBe(3);
+    assert.equal(calculateTier(4000), 1);
+    assert.equal(calculateTier(3000), 1);
+    assert.equal(calculateTier(2000), 2);
+    assert.equal(calculateTier(1000), 2);
+    assert.equal(calculateTier(500), 3);
   });
 });
 
@@ -286,12 +282,12 @@ describe('related news functionality', () => {
     ];
 
     const limitedNews = mockNews.slice(0, 3);
-    expect(limitedNews.length).toBe(3);
+    assert.equal(limitedNews.length, 3);
   });
 
   it('should handle empty news array', () => {
     const emptyNews: { title: string; url: string }[] = [];
     const shouldShowSection = emptyNews.length > 0;
-    expect(shouldShowSection).toBe(false);
+    assert.equal(shouldShowSection, false);
   });
 });
