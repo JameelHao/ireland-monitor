@@ -174,7 +174,8 @@ export class CountryIntelManager implements AppModule {
 
     this.ctx.countryBriefPage.show(country, code, score, signals);
     this.ctx.map?.highlightCountry(code);
-    this.ctx.map?.fitCountry(code);
+    // Note: Removed fitCountry() to preserve user's current map view (FR #156)
+    // Users found auto-zoom disruptive when exploring specific regions
 
     if (opts?.maximize) {
       requestAnimationFrame(() => {
