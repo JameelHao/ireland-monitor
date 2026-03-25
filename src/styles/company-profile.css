@@ -1,0 +1,489 @@
+/**
+ * Company Profile Styles
+ *
+ * Full-screen overlay for company profile pages.
+ */
+
+/* ============================================================
+   Overlay Container
+   ============================================================ */
+.company-profile-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.company-profile-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ============================================================
+   Profile Panel
+   ============================================================ */
+.profile-panel {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: var(--bg, #141414);
+  border: 1px solid var(--border, #2a2a2a);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================================
+   Close Button
+   ============================================================ */
+.profile-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--overlay-medium, rgba(255, 255, 255, 0.1));
+  border: none;
+  border-radius: 50%;
+  color: var(--text, #e8e8e8);
+  font-size: 24px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  z-index: 10;
+}
+
+.profile-close:hover {
+  background: var(--overlay-heavy, rgba(255, 255, 255, 0.2));
+}
+
+/* ============================================================
+   Header
+   ============================================================ */
+.profile-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid var(--border, #2a2a2a);
+}
+
+.profile-logo .company-logo,
+.profile-logo .logo-initials {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.profile-logo .logo-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.profile-header-content {
+  flex: 1;
+  min-width: 0;
+  padding-right: 40px; /* Space for close button */
+}
+
+.profile-name {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text, #e8e8e8);
+  line-height: 1.2;
+}
+
+.profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profile-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--overlay-medium, rgba(255, 255, 255, 0.1));
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary, #ccc);
+}
+
+.profile-tag-unicorn {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c4b5fd;
+}
+
+.profile-tag-irish-founded {
+  background: rgba(22, 155, 98, 0.2);
+  color: #86efac;
+}
+
+.profile-tag-tech-hq {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+
+/* ============================================================
+   Content
+   ============================================================ */
+.profile-content {
+  padding: 0 24px;
+}
+
+.profile-section {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-subtle, #1a1a1a);
+}
+
+.profile-section:last-child {
+  border-bottom: none;
+}
+
+.profile-section h2 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dim, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-description {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text, #e8e8e8);
+}
+
+/* ============================================================
+   Details Grid
+   ============================================================ */
+.profile-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.profile-detail {
+  display: flex;
+  gap: 12px;
+}
+
+.profile-detail-wide {
+  grid-column: span 2;
+}
+
+.detail-icon {
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: var(--text-dim, #888);
+}
+
+.detail-value {
+  font-size: 14px;
+  color: var(--text, #e8e8e8);
+}
+
+/* ============================================================
+   People Grid
+   ============================================================ */
+.profile-people-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.profile-person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--overlay-subtle, rgba(255, 255, 255, 0.03));
+  border-radius: 8px;
+}
+
+.person-avatar {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--overlay-medium, rgba(255, 255, 255, 0.1));
+  border-radius: 50%;
+  color: var(--text, #e8e8e8);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.person-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.person-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text, #e8e8e8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.person-title {
+  font-size: 12px;
+  color: var(--text-dim, #888);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.person-linkedin {
+  flex-shrink: 0;
+  text-decoration: none;
+  font-size: 16px;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
+.person-linkedin:hover {
+  opacity: 1;
+}
+
+/* ============================================================
+   Links Section
+   ============================================================ */
+.profile-link-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profile-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--overlay-medium, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  color: var(--text, #e8e8e8);
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.15s ease;
+}
+
+.profile-link:hover {
+  background: var(--overlay-heavy, rgba(255, 255, 255, 0.15));
+}
+
+.link-icon {
+  font-size: 16px;
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.profile-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border, #2a2a2a);
+  background: var(--overlay-subtle, rgba(255, 255, 255, 0.02));
+}
+
+.profile-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--primary, #169B62);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.profile-back-btn:hover {
+  background: var(--primary-hover, #0F7A4C);
+}
+
+.profile-updated {
+  font-size: 12px;
+  color: var(--text-dim, #888);
+}
+
+/* ============================================================
+   Not Found State
+   ============================================================ */
+.profile-not-found {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.not-found-content {
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.not-found-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.not-found-content h1 {
+  margin: 0 0 12px 0;
+  font-size: 24px;
+  color: var(--text, #e8e8e8);
+}
+
+.not-found-content p {
+  margin: 0 0 24px 0;
+  font-size: 15px;
+  color: var(--text-dim, #888);
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 768px) {
+  .company-profile-overlay {
+    padding: 0;
+  }
+
+  .profile-panel {
+    max-width: none;
+    max-height: none;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .profile-header {
+    padding: 20px 16px 16px;
+  }
+
+  .profile-logo .company-logo,
+  .profile-logo .logo-initials {
+    width: 52px;
+    height: 52px;
+  }
+
+  .profile-name {
+    font-size: 20px;
+  }
+
+  .profile-content {
+    padding: 0 16px;
+  }
+
+  .profile-details-grid,
+  .profile-people-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-detail-wide {
+    grid-column: span 1;
+  }
+
+  .profile-footer {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .profile-back-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ============================================================
+   Light Theme
+   ============================================================ */
+[data-theme="light"] .profile-panel {
+  background: #fff;
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .profile-close {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+[data-theme="light"] .profile-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .profile-name,
+[data-theme="light"] .detail-value,
+[data-theme="light"] .person-name {
+  color: #1a1a1a;
+}
+
+[data-theme="light"] .profile-description {
+  color: #333;
+}
+
+[data-theme="light"] .profile-section h2,
+[data-theme="light"] .detail-label,
+[data-theme="light"] .person-title,
+[data-theme="light"] .profile-updated {
+  color: #6b7280;
+}
+
+[data-theme="light"] .profile-tag {
+  background: rgba(0, 0, 0, 0.05);
+  color: #4b5563;
+}
+
+[data-theme="light"] .profile-person {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .profile-link {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+[data-theme="light"] .profile-link:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .profile-footer {
+  background: rgba(0, 0, 0, 0.02);
+}

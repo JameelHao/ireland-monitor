@@ -10,6 +10,7 @@ import {
 } from '@/config';
 import { initBriefButtonStatus } from '@/hooks/useBriefStatus';
 import { initAlertButtonStatus } from '@/hooks/useAlertStatus';
+import { getCompanyProfile } from '@/components/CompanyProfile';
 import { sanitizeLayersForVariant } from '@/config/map-layer-definitions';
 import type { MapVariant } from '@/config/map-layer-definitions';
 import { initDB, cleanOldSnapshots, isAisConfigured, initAisStream, isOutagesConfigured, disconnectAisStream } from '@/services';
@@ -595,6 +596,10 @@ export class App {
     }
     // Initialize alert button status styling (FR #136)
     initAlertButtonStatus(alertTrigger, alertBadge);
+
+    // Initialize Company Profile route handler (FR #147)
+    getCompanyProfile();
+
     showProBanner(this.state.container);
 
     const mobileGeoCoords = await geoCoordsPromise;
