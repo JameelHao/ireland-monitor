@@ -7,7 +7,10 @@
 
 import { escapeHtml, sanitizeUrl } from '@/utils/sanitize';
 import { IRELAND_COMPANIES } from '@/data/ireland-companies';
-import type { Company } from '@/types/company';
+import { IRISH_UNICORNS, type IrishUnicorn } from '@/config/variants/ireland/data/unicorns';
+import { IRELAND_TECH_HQS, type IrelandTechHQ } from '@/config/variants/ireland/data/tech-hqs';
+import { IRELAND_DATA_CENTERS, type IrelandDataCenter } from '@/config/variants/ireland/data/data-centers';
+import type { Company, CompanyIndustry, EmployeeRange, CompanyTag } from '@/types/company';
 import { renderLogo } from '@/utils/logoFallback';
 
 /**
@@ -106,12 +109,143 @@ export class CompanyProfile {
 
   /**
    * Find company by ID or slug
+   * Searches across multiple data sources:
+   * 1. IRELAND_COMPANIES (detailed company profiles)
+   * 2. IRISH_UNICORNS (unicorn/high-growth companies)
+   * 3. IRELAND_TECH_HQS (multinational tech HQs)
+   * 4. IRELAND_DATA_CENTERS (data center facilities)
    */
   private findCompany(id: string): Company | undefined {
     const lowerId = id.toLowerCase();
-    return IRELAND_COMPANIES.find(
+
+    // 1. Check main company database first
+    const company = IRELAND_COMPANIES.find(
       c => c.id.toLowerCase() === lowerId || c.slug.toLowerCase() === lowerId
     );
+    if (company) return company;
+
+    // 2. Check Irish Unicorns and convert to Company type
+    const unicorn = IRISH_UNICORNS.find(u => u.id.toLowerCase() === lowerId);
+    if (unicorn) return this.convertUnicornToCompany(unicorn);
+
+    // 3. Check Tech HQs and convert to Company type
+    const techHQ = IRELAND_TECH_HQS.find(h => h.id.toLowerCase() === lowerId);
+    if (techHQ) return this.convertTechHQToCompany(techHQ);
+
+    // 4. Check Data Centers and convert to Company type
+    const dataCenter = IRELAND_DATA_CENTERS.find(d => d.id.toLowerCase() === lowerId);
+    if (dataCenter) return this.convertDataCenterToCompany(dataCenter);
+
+    return undefined;
+  }
+
+  /**
+   * Convert IrishUnicorn to Company type
+   */
+  private convertUnicornToCompany(unicorn: IrishUnicorn): Company {
+    // Map employee count to EmployeeRange
+    const employeeRange = unicorn.employees
+      ? this.mapEmployeeCount(unicorn.employees)
+      : undefined;
+
+    // Map category to tags
+    const tags: CompanyTag[] = [];
+    if (unicorn.category === 'unicorn') tags.push('unicorn');
+    tags.push('irish-founded');
+
+    return {
+      id: unicorn.id,
+      slug: unicorn.id,
+      name: unicorn.name,
+      description: unicorn.description,
+      founded: unicorn.founded,
+      headquarters: `${unicorn.location}, Ireland`,
+      industry: this.mapSectorToIndustry(unicorn.sector),
+      employeeCount: employeeRange,
+      website: unicorn.website,
+      tags,
+      coordinates: [unicorn.lng, unicorn.lat],
+      funding: unicorn.valuation ? { total: unicorn.valuation } : undefined,
+    };
+  }
+
+  /**
+   * Convert IrelandTechHQ to Company type
+   */
+  private convertTechHQToCompany(hq: IrelandTechHQ): Company {
+    const employeeRange = hq.employees
+      ? this.mapEmployeeCount(hq.employees)
+      : undefined;
+
+    return {
+      id: hq.id,
+      slug: hq.id,
+      name: hq.company,
+      description: hq.description,
+      founded: hq.founded,
+      headquarters: `${hq.location}, Ireland`,
+      industry: 'Enterprise',
+      employeeCount: employeeRange,
+      website: hq.website,
+      tags: ['tech-hq', 'multinational'],
+      coordinates: [hq.lng, hq.lat],
+      address: hq.address,
+    };
+  }
+
+  /**
+   * Convert IrelandDataCenter to Company type
+   */
+  private convertDataCenterToCompany(dc: IrelandDataCenter): Company {
+    return {
+      id: dc.id,
+      slug: dc.id,
+      name: dc.name,
+      description: dc.description,
+      headquarters: `${dc.location}, Ireland`,
+      industry: 'Data Center',
+      website: dc.website,
+      tags: ['data-center'],
+      coordinates: [dc.lng, dc.lat],
+    };
+  }
+
+  /**
+   * Map employee count number to EmployeeRange
+   */
+  private mapEmployeeCount(count: number): EmployeeRange {
+    if (count <= 10) return '1-10';
+    if (count <= 50) return '11-50';
+    if (count <= 200) return '51-200';
+    if (count <= 500) return '201-500';
+    if (count <= 1000) return '501-1000';
+    if (count <= 5000) return '1001-5000';
+    if (count <= 10000) return '5001-10000';
+    return '10000+';
+  }
+
+  /**
+   * Map sector string to CompanyIndustry type
+   */
+  private mapSectorToIndustry(sector: string): CompanyIndustry {
+    const sectorMap: Record<string, CompanyIndustry> = {
+      'SaaS': 'SaaS',
+      'Fintech': 'Fintech',
+      'FinTech': 'Fintech',
+      'FoodTech': 'E-commerce',
+      'Healthcare': 'Healthcare',
+      'Gaming': 'Gaming',
+      'Semiconductor': 'Semiconductor',
+      'Data Center': 'Data Center',
+      'Cybersecurity': 'Cybersecurity',
+      'Cloud': 'Cloud',
+      'Enterprise': 'Enterprise',
+      'Consumer': 'Consumer',
+      'AI': 'AI/ML',
+      'AI/ML': 'AI/ML',
+      'Tech': 'Other',
+    };
+    return sectorMap[sector] || 'Other';
   }
 
   /**
