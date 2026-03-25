@@ -38,14 +38,60 @@ const mockCompanies = [
   },
 ];
 
+// Mock unicorn data for testing
+const mockUnicorns = [
+  {
+    id: 'flipdish',
+    name: 'Flipdish',
+    location: 'Dublin',
+    lat: 53.3423,
+    lng: -6.2412,
+    category: 'unicorn',
+    sector: 'FoodTech',
+    founded: 2015,
+    employees: 500,
+    valuation: '$1.2B',
+  },
+  {
+    id: 'fenergo',
+    name: 'Fenergo',
+    location: 'Dublin',
+    lat: 53.3445,
+    lng: -6.2378,
+    category: 'high-growth',
+    sector: 'FinTech',
+    founded: 2009,
+    employees: 1000,
+  },
+];
+
 /**
  * Find company by ID or slug (matching the component logic)
+ * Also searches unicorn data
  */
 function findCompany(id: string) {
   const lowerId = id.toLowerCase();
-  return mockCompanies.find(
+
+  // Check main companies first
+  const company = mockCompanies.find(
     c => c.id.toLowerCase() === lowerId || c.slug.toLowerCase() === lowerId
   );
+  if (company) return company;
+
+  // Check unicorns
+  const unicorn = mockUnicorns.find(u => u.id.toLowerCase() === lowerId);
+  if (unicorn) {
+    return {
+      id: unicorn.id,
+      slug: unicorn.id,
+      name: unicorn.name,
+      headquarters: `${unicorn.location}, Ireland`,
+      industry: unicorn.sector,
+      founded: unicorn.founded,
+    };
+  }
+
+  return undefined;
 }
 
 /**
@@ -213,5 +259,51 @@ describe('Integration', () => {
     assert.ok(companyId);
     const company = findCompany(companyId);
     assert.equal(company, undefined);
+  });
+});
+
+// ==============================================================
+// Unicorn Lookup Tests (FR #152)
+// ==============================================================
+
+describe('Unicorn Lookup', () => {
+  it('should find unicorn by ID', () => {
+    const company = findCompany('flipdish');
+    assert.ok(company);
+    assert.equal(company.name, 'Flipdish');
+  });
+
+  it('should convert unicorn to company format', () => {
+    const company = findCompany('flipdish');
+    assert.ok(company);
+    assert.equal(company.id, 'flipdish');
+    assert.equal(company.slug, 'flipdish');
+    assert.equal(company.headquarters, 'Dublin, Ireland');
+    assert.equal(company.industry, 'FoodTech');
+  });
+
+  it('should find unicorn case-insensitively', () => {
+    const company1 = findCompany('FLIPDISH');
+    const company2 = findCompany('Flipdish');
+    const company3 = findCompany('flipdish');
+    assert.ok(company1);
+    assert.ok(company2);
+    assert.ok(company3);
+    assert.equal(company1.id, company2.id);
+  });
+
+  it('should find high-growth company', () => {
+    const company = findCompany('fenergo');
+    assert.ok(company);
+    assert.equal(company.name, 'Fenergo');
+    assert.equal(company.industry, 'FinTech');
+  });
+
+  it('should prefer main company over unicorn', () => {
+    // intercom exists in both mockCompanies and could exist in unicorns
+    const company = findCompany('intercom');
+    assert.ok(company);
+    // Should get the one from mockCompanies which has description
+    assert.equal(company.description, 'Customer messaging platform');
   });
 });
