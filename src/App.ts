@@ -8,6 +8,8 @@ import {
   STORAGE_KEYS,
   SITE_VARIANT,
 } from '@/config';
+import { initBriefButtonStatus } from '@/hooks/useBriefStatus';
+import { initAlertButtonStatus } from '@/hooks/useAlertStatus';
 import { sanitizeLayersForVariant } from '@/config/map-layer-definitions';
 import type { MapVariant } from '@/config/map-layer-definitions';
 import { initDB, cleanOldSnapshots, isAisConfigured, initAisStream, isOutagesConfigured, disconnectAisStream } from '@/services';
@@ -581,6 +583,8 @@ export class App {
       this.dailyBrief = new DailyBrief(briefContainer, briefTrigger);
       this.dailyBrief.mount();
     }
+    // Initialize brief button status styling (FR #136)
+    initBriefButtonStatus(briefTrigger);
 
     const alertContainer = document.getElementById('alertPanelContainer');
     const alertTrigger = document.getElementById('alertTriggerBtn');
@@ -589,6 +593,8 @@ export class App {
       this.alertPanel = new AlertPanel(alertContainer, alertTrigger, alertBadge);
       this.alertPanel.mount();
     }
+    // Initialize alert button status styling (FR #136)
+    initAlertButtonStatus(alertTrigger, alertBadge);
     showProBanner(this.state.container);
 
     const mobileGeoCoords = await geoCoordsPromise;
