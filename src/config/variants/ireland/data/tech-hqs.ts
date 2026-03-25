@@ -192,4 +192,34 @@ export const IRELAND_TECH_HQS: IrelandTechHQ[] = [
     website: 'https://www.dropbox.com/',
     description: "Dropbox's EMEA headquarters for cloud storage services.",
   },
+
+  // Telecom & Networking
+  {
+    id: 'cisco-dublin',
+    company: 'Cisco',
+    type: 'emea-hq',
+    location: 'Dublin',
+    lat: 53.3389,
+    lng: -6.2412,
+    employees: 1500,
+    address: 'Harcourt Centre, Dublin 2',
+    founded: 2000,
+    website: 'https://www.cisco.com/c/en_ie/',
+    description:
+      "Cisco's EMEA Operations Center, supporting networking and cybersecurity solutions across Europe, Middle East, and Africa.",
+  },
+  {
+    id: 'ericsson-athlone',
+    company: 'Ericsson',
+    type: 'european-hq',
+    location: 'Athlone',
+    lat: 53.4239,
+    lng: -7.9407,
+    employees: 500,
+    address: 'Athlone Business Park, Athlone, Co. Westmeath',
+    founded: 1998,
+    website: 'https://www.ericsson.com/en/about-us/company-facts/ericsson-worldwide/ireland',
+    description:
+      "Ericsson's Ireland R&D Center, focusing on 5G technology, telecom software, and network solutions.",
+  },
 ];
