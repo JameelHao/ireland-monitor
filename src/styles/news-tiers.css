@@ -1,0 +1,161 @@
+/**
+ * News Card Visual Hierarchy Styles
+ *
+ * Three-tier visual hierarchy for news items:
+ * - Tier 1 (Important): Orange border, bold title, subtle highlight
+ * - Tier 2 (Standard): Default styling
+ * - Tier 3 (Minor): Faded appearance for old news
+ */
+
+/* ============================================================
+   Tier 1: Important News
+   ============================================================ */
+.item.tier-1 {
+  border-left: 4px solid var(--accent-orange, #F97316) !important;
+  background: var(--tier1-bg, rgba(249, 115, 22, 0.05));
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+
+.item.tier-1 .item-title {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.item.tier-1:hover {
+  background: var(--tier1-bg-hover, rgba(249, 115, 22, 0.08));
+}
+
+/* HOT badge for recent important news */
+.item.tier-1 .hot-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--accent-orange, #F97316);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  z-index: 1;
+}
+
+/* Funding amount badge */
+.item.tier-1 .funding-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--funding-bg, rgba(22, 163, 74, 0.1));
+  color: var(--funding-text, #16A34A);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+/* ============================================================
+   Tier 2: Standard News (default)
+   ============================================================ */
+.item.tier-2 {
+  /* Default item styling - no special treatment */
+}
+
+.item.tier-2 .item-title {
+  font-weight: 500;
+}
+
+/* ============================================================
+   Tier 3: Minor News (old/low priority)
+   ============================================================ */
+.item.tier-3 {
+  opacity: 0.7;
+}
+
+.item.tier-3 .item-title {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.item.tier-3 .item-source,
+.item.tier-3 .item-time,
+.item.tier-3 .cluster-meta {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.item.tier-3:hover {
+  opacity: 0.85;
+}
+
+/* ============================================================
+   Dark Theme Overrides
+   ============================================================ */
+[data-theme="dark"] .item.tier-1 {
+  --tier1-bg: rgba(249, 115, 22, 0.08);
+  --tier1-bg-hover: rgba(249, 115, 22, 0.12);
+}
+
+[data-theme="dark"] .item.tier-1 .item-title {
+  color: var(--text-primary, #fff);
+}
+
+/* ============================================================
+   Light Theme Overrides
+   ============================================================ */
+[data-theme="light"] .item.tier-1 {
+  --tier1-bg: rgba(249, 115, 22, 0.04);
+  --tier1-bg-hover: rgba(249, 115, 22, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .item.tier-1 .item-title {
+  color: var(--text-primary, #1a1a1a);
+}
+
+[data-theme="light"] .item.tier-3 .item-title {
+  color: var(--text-secondary, #666);
+}
+
+/* ============================================================
+   Responsive Adjustments
+   ============================================================ */
+@media (max-width: 768px) {
+  .item.tier-1 .hot-badge {
+    top: 6px;
+    right: 6px;
+    padding: 1px 4px;
+    font-size: 9px;
+  }
+
+  .item.tier-1 .funding-badge {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+
+  .item.tier-3 .item-title {
+    font-size: 11px;
+  }
+}
+
+/* ============================================================
+   Animation for new important items
+   ============================================================ */
+.item.tier-1.item-new-highlight {
+  animation: tier1-pulse 0.6s ease-out;
+}
+
+@keyframes tier1-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(249, 115, 22, 0);
+  }
+  100% {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  }
+}
