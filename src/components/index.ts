@@ -68,3 +68,4 @@ export * from './AlertPanel';
 export * from './AlertSettings';
 export * from './BreakingNewsTickerPanel';
 export * from './ShareButton';
+export * from './CompanyProfile';
