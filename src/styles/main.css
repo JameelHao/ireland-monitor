@@ -15046,12 +15046,34 @@ a.prediction-link:hover {
   color: var(--text);
 }
 
+/* Compact Pro Banner (36px height) */
+.pro-banner.pro-banner-compact {
+  padding: 6px 36px 6px 12px;
+  background: rgba(0, 0, 0, 0.9);
+  border-bottom: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.pro-banner.pro-banner-compact .pro-banner-text {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.pro-banner.pro-banner-compact .pro-banner-cta {
+  padding: 3px 12px;
+  font-size: 11px;
+}
+
 @media (max-width: 768px) {
   .pro-banner {
     font-size: 11px;
     gap: 8px;
     padding: 6px 32px 6px 10px;
     flex-wrap: wrap;
+  }
+
+  .pro-banner.pro-banner-compact {
+    padding: 5px 32px 5px 8px;
+    gap: 6px;
   }
 
   .pro-banner-text {

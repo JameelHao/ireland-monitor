@@ -1,9 +1,19 @@
+/**
+ * Pro Banner Component
+ *
+ * Displays a compact promotional banner for Pro features.
+ * Can be dismissed for 7 days via close button.
+ */
+
 let bannerEl: HTMLElement | null = null;
 
-/* TODO: re-enable dismiss after pro launch promotion period
+// Dismiss key and duration (7 days)
 const DISMISS_KEY = 'wm-pro-banner-dismissed';
 const DISMISS_MS = 7 * 24 * 60 * 60 * 1000;
 
+/**
+ * Check if banner was dismissed within the last 7 days
+ */
 function isDismissed(): boolean {
   const ts = localStorage.getItem(DISMISS_KEY);
   if (!ts) return false;
@@ -14,6 +24,9 @@ function isDismissed(): boolean {
   return true;
 }
 
+/**
+ * Dismiss the banner with animation and store timestamp
+ */
 function dismiss(): void {
   if (!bannerEl) return;
   bannerEl.classList.add('pro-banner-out');
@@ -23,29 +36,35 @@ function dismiss(): void {
   }, 300);
   localStorage.setItem(DISMISS_KEY, String(Date.now()));
 }
-*/
 
+/**
+ * Show the Pro banner if not dismissed
+ * Uses compact design (36px height) with dismiss button
+ */
 export function showProBanner(container: HTMLElement): void {
   if (bannerEl) return;
   if (window.self !== window.top) return;
+  if (isDismissed()) return;
 
   const banner = document.createElement('div');
-  banner.className = 'pro-banner';
+  banner.className = 'pro-banner pro-banner-compact';
   banner.innerHTML = `
     <span class="pro-banner-badge">PRO</span>
     <span class="pro-banner-text">
-      <strong>Pro is coming</strong> — More Signal, Less Noise. More AI Briefings. A Geopolitical &amp; Equity Researcher just for you.
+      <strong>PRO Coming Soon</strong>
     </span>
     <a class="pro-banner-cta" href="/pro">Reserve your spot →</a>
+    <button class="pro-banner-close" aria-label="Dismiss">×</button>
   `;
 
-  /* TODO: re-enable close button after pro launch promotion period
-  banner.innerHTML += `<button class="pro-banner-close" aria-label="Dismiss">×</button>`;
-  banner.querySelector('.pro-banner-close')!.addEventListener('click', (e) => {
-    e.preventDefault();
-    dismiss();
-  });
-  */
+  // Add close button handler
+  const closeBtn = banner.querySelector('.pro-banner-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      dismiss();
+    });
+  }
 
   const header = container.querySelector('.header');
   if (header) {
@@ -70,3 +89,7 @@ export function hideProBanner(): void {
 export function isProBannerVisible(): boolean {
   return bannerEl !== null;
 }
+
+// Export constants for testing
+export const PRO_BANNER_DISMISS_KEY = DISMISS_KEY;
+export const PRO_BANNER_DISMISS_MS = DISMISS_MS;
