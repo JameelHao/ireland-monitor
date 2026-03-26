@@ -248,7 +248,7 @@ const IRELAND_MAP_LAYERS: MapLayers = {
   displacement: false,
   climate: false,
   startupHubs: true,  // 科技创业中心
-  cloudRegions: true, // 云区域
+  cloudRegions: false, // 禁用 - 与 Data Centers 重复，用户更关心物理位置 (FR #170)
   accelerators: true, // 加速器
   techHQs: true,      // 科技公司总部
   techEvents: true,   // 科技活动
