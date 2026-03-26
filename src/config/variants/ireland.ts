@@ -127,6 +127,9 @@ export const FEEDS: Record<string, Feed[]> = {
     { name: 'Irish Tech M&A', url: rss('https://news.google.com/rss/search?q=(Ireland+OR+Irish+OR+Dublin)+(tech+OR+startup)+(acquisition+OR+acquires+OR+merger+OR+takeover)+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
     { name: 'Irish Times Deals', url: rss('https://news.google.com/rss/search?q=site:irishtimes.com+(acquisition+OR+merger)+tech+Ireland+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
     { name: 'Silicon Republic Deals', url: rss('https://news.google.com/rss/search?q=site:siliconrepublic.com+(acquisition+OR+merger+OR+deal)+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
+    // Enterprise software M&A and earnings
+    { name: 'Enterprise Tech M&A', url: rss('https://news.google.com/rss/search?q=(Datadog+OR+Dynatrace+OR+ServiceNow+OR+Workday+OR+SAP+OR+Oracle+OR+Bloomberg)+(acquisition+OR+merger+OR+earnings+OR+"quarterly+results")+when:14d&hl=en-US&gl=US&ceid=US:en') },
+    { name: 'Splunk Cisco Integration', url: rss('https://news.google.com/rss/search?q=Splunk+Cisco+(acquisition+OR+integration+OR+merger)+when:30d&hl=en-US&gl=US&ceid=US:en') },
   ],
 
   // 爱尔兰大厂招聘
@@ -145,6 +148,27 @@ export const FEEDS: Record<string, Feed[]> = {
 
     // Local boards as fallback signal
     { name: 'IrishJobs Tech', url: rss('https://news.google.com/rss/search?q=site:irishjobs.ie+technology+jobs+Ireland+when:7d&hl=en-IE&gl=IE&ceid=IE:en') },
+
+    // Enterprise software companies hiring in Ireland
+    { name: 'Enterprise Tech Jobs Ireland', url: rss('https://news.google.com/rss/search?q=(Ireland+OR+Dublin+OR+Galway)+(Datadog+OR+Dynatrace+OR+ServiceNow+OR+Workday+OR+SAP+OR+Oracle+OR+Bloomberg+OR+Splunk)+(hiring+OR+jobs+OR+careers)+when:14d&hl=en-IE&gl=IE&ceid=IE:en') },
+    { name: 'ServiceNow Dublin Jobs', url: rss('https://news.google.com/rss/search?q=ServiceNow+Dublin+(hiring+OR+jobs+OR+"Centre+of+Excellence")+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
+  ],
+
+  // 企业软件公司爱尔兰新闻
+  ieEnterpriseTech: [
+    // Monitoring & Observability companies in Ireland
+    { name: 'Datadog Ireland', url: rss('https://news.google.com/rss/search?q=Datadog+(Ireland+OR+Dublin)+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
+    { name: 'Dynatrace Ireland', url: rss('https://news.google.com/rss/search?q=Dynatrace+(Ireland+OR+Dublin)+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
+    { name: 'Splunk Ireland', url: rss('https://news.google.com/rss/search?q=Splunk+(Ireland+OR+Galway)+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
+
+    // Enterprise software companies in Ireland
+    { name: 'ServiceNow Ireland', url: rss('https://news.google.com/rss/search?q=ServiceNow+(Ireland+OR+Dublin)+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
+    { name: 'Workday Ireland', url: rss('https://news.google.com/rss/search?q=Workday+(Ireland+OR+Dublin)+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
+    { name: 'SAP Ireland', url: rss('https://news.google.com/rss/search?q=SAP+(Ireland+OR+Dublin)+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
+    { name: 'Oracle Ireland', url: rss('https://news.google.com/rss/search?q=Oracle+(Ireland+OR+Dublin)+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
+
+    // Financial data
+    { name: 'Bloomberg Ireland', url: rss('https://news.google.com/rss/search?q=Bloomberg+(Ireland+OR+Dublin)+office+when:30d&hl=en-IE&gl=IE&ceid=IE:en') },
   ],
 };
 
@@ -155,10 +179,11 @@ export const PANELS: Record<string, PanelConfig> = {
   ieSemiconductors: { name: 'Semiconductors', enabled: true, priority: 3 },
   ieDeals: { name: 'Tech M&A', enabled: true, priority: 4 },
   ieJobs: { name: 'Big Tech Jobs', enabled: true, priority: 5 },
-  startups: { name: 'Startups', enabled: true, priority: 6 },
-  ieSummits: { name: 'Summits', enabled: true, priority: 7 },
-  ieBusiness: { name: 'Business', enabled: true, priority: 8 },
-  ai: { name: 'AI/ML', enabled: true, priority: 9 },
+  ieEnterpriseTech: { name: 'Enterprise Tech', enabled: true, priority: 6 },
+  startups: { name: 'Startups', enabled: true, priority: 7 },
+  ieSummits: { name: 'Summits', enabled: true, priority: 8 },
+  ieBusiness: { name: 'Business', enabled: true, priority: 9 },
+  ai: { name: 'AI/ML', enabled: true, priority: 10 },
 };
 
 // Ireland map layers (minimal for tech focus)
