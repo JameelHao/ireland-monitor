@@ -39,7 +39,9 @@ export const FEEDS: Record<string, Feed[]> = {
   ],
 
   // 爱尔兰学术机构（通过 Google News）
+  // 爱尔兰学术机构新闻（9所大学 + 研究机构）
   ieAcademic: [
+    // Dublin Universities
     { 
       name: 'TCD News', 
       url: rss('https://news.google.com/rss/search?q=site:tcd.ie+when:7d&hl=en-IE&gl=IE&ceid=IE:en') 
@@ -48,6 +50,38 @@ export const FEEDS: Record<string, Feed[]> = {
       name: 'UCD News', 
       url: rss('https://news.google.com/rss/search?q=site:ucd.ie+when:7d&hl=en-IE&gl=IE&ceid=IE:en') 
     },
+    { 
+      name: 'DCU News', 
+      url: rss('https://news.google.com/rss/search?q=site:dcu.ie+when:7d&hl=en-IE&gl=IE&ceid=IE:en') 
+    },
+    { 
+      name: 'TU Dublin News', 
+      url: rss('https://news.google.com/rss/search?q=site:tudublin.ie+when:7d&hl=en-IE&gl=IE&ceid=IE:en') 
+    },
+    { 
+      name: 'RCSI News', 
+      url: rss('https://news.google.com/rss/search?q=site:rcsi.com+when:7d&hl=en-IE&gl=IE&ceid=IE:en') 
+    },
+
+    // Regional Universities
+    { 
+      name: 'Maynooth University News', 
+      url: rss('https://news.google.com/rss/search?q=site:maynoothuniversity.ie+when:7d&hl=en-IE&gl=IE&ceid=IE:en') 
+    },
+    { 
+      name: 'UCC News', 
+      url: rss('https://news.google.com/rss/search?q=site:ucc.ie+when:7d&hl=en-IE&gl=IE&ceid=IE:en') 
+    },
+    { 
+      name: 'University of Galway News', 
+      url: rss('https://news.google.com/rss/search?q=site:universityofgalway.ie+when:7d&hl=en-IE&gl=IE&ceid=IE:en') 
+    },
+    { 
+      name: 'UL News', 
+      url: rss('https://news.google.com/rss/search?q=site:ul.ie+when:7d&hl=en-IE&gl=IE&ceid=IE:en') 
+    },
+
+    // Research Institutions
     { 
       name: 'SFI Announcements', 
       url: rss('https://news.google.com/rss/search?q=site:sfi.ie+when:7d&hl=en-IE&gl=IE&ceid=IE:en') 
