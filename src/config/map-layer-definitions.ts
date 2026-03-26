@@ -122,7 +122,7 @@ const VARIANT_LAYER_ORDER: Record<MapVariant, Array<keyof MapLayers>> = {
   ireland: [
     'semiconductorHubs', 'irelandDataCenters', 'irelandTechHQs', 'irishUnicorns',
     'irelandAICompanies', 'irelandUniversities',
-    'startupHubs', 'cloudRegions', 'accelerators', 'techEvents',
+    'startupHubs', 'accelerators', 'techEvents',
   ],
 };
 
