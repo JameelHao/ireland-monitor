@@ -107,21 +107,43 @@ export const IRELAND_SUBMARINE_CABLES: SubmarineCable[] = [
     name: 'Hibernia Express',
     route: 'New York → Halifax → Dublin → London',
     destination: 'transatlantic',
-    // FR #191: Detailed waypoints for smooth Great Circle curve
-    // 12 points form a natural northward arc across the Atlantic
+    // FR #193: 30 waypoints for accurate Great Circle arc
+    // Maximum latitude ~60°N (south of Greenland) to match TeleGeography
     path: [
-      [-74.006, 40.7128],   // 1. New York (landing point)
-      [-70.5, 41.5],        // 2. Atlantic West (offshore NY)
-      [-67.0, 42.8],        // 3. Approaching Canadian coast
-      [-63.5752, 44.6488],  // 4. Halifax (landing point)
-      [-55.0, 48.0],        // 5. South of Newfoundland
-      [-45.0, 51.5],        // 6. Mid-Atlantic (Great Circle apex)
-      [-35.0, 53.0],        // 7. Eastern Atlantic
-      [-25.0, 53.5],        // 8. South of Iceland
-      [-15.0, 53.2],        // 9. West of Ireland
-      [-6.2603, 53.3498],   // 10. Dublin (landing point)
-      [-3.5, 52.5],         // 11. Irish Sea
-      [-0.1278, 51.5074],   // 12. London (landing point)
+      // === Segment 1: New York → Halifax (7 points) ===
+      [-74.006, 40.7128],    // 1. New York (landing point)
+      [-72.0, 41.2],         // 2. Off Long Island
+      [-70.0, 41.8],         // 3. Atlantic West
+      [-68.0, 42.5],         // 4. Approaching Nova Scotia
+      [-66.0, 43.2],         // 5. Nova Scotia coast
+      [-64.5, 43.9],         // 6. Approaching Halifax
+      [-63.5752, 44.6488],   // 7. Halifax (landing point)
+      // === Segment 2: Halifax → Dublin (Great Circle - 20 points) ===
+      // Northward arc to ~60°N, then descending to Dublin
+      [-60.0, 46.5],         // 8. East of Newfoundland
+      [-56.0, 48.5],         // 9. South of Newfoundland
+      [-52.0, 50.8],         // 10. Newfoundland Basin
+      [-48.0, 53.2],         // 11. Mid-Atlantic (climbing north)
+      [-44.0, 55.5],         // 12. Continuing north
+      [-40.0, 57.5],         // 13. High Atlantic
+      [-36.0, 59.0],         // 14. Approaching Great Circle apex
+      [-32.0, 59.8],         // 15. ★ Great Circle apex (northernmost ~60°N)
+      [-28.0, 59.5],         // 16. Descending east
+      [-24.0, 58.5],         // 17. South of Iceland
+      [-20.0, 57.0],         // 18. East of Iceland
+      [-18.0, 56.0],         // 19. Continuing descent
+      [-16.0, 55.0],         // 20. Approaching Ireland
+      [-14.0, 54.5],         // 21. West Atlantic
+      [-12.0, 54.2],         // 22. West of Ireland
+      [-10.0, 54.0],         // 23. Irish continental shelf
+      [-8.0, 53.7],          // 24. Approaching Irish coast
+      [-7.0, 53.5],          // 25. Off Irish coast
+      [-6.5, 53.4],          // 26. Entering Dublin Bay
+      [-6.2603, 53.3498],    // 27. Dublin (landing point)
+      // === Segment 3: Dublin → London (3 points) ===
+      [-4.0, 52.8],          // 28. Irish Sea
+      [-2.0, 52.2],          // 29. Approaching UK coast
+      [-0.1278, 51.5074],    // 30. London (landing point)
     ],
     landingPoints: [
       { city: 'New York', country: 'USA', lat: 40.7128, lng: -74.006 },
