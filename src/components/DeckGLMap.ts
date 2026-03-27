@@ -24,8 +24,9 @@ import {
   type IrelandAICompany,
   type IrelandUniversity,
   type LandingStation,
-  type CableSegment,
+  type SubmarineCable,
 } from '@/config/variants/ireland/data';
+import { generateSmoothGreatCirclePath } from '@/utils/geo-smooth-path';
 import {
   getSemiconductorTier,
   getDataCenterTier,
@@ -78,7 +79,7 @@ import type { ClimateAnomaly } from '@/services/climate';
 import type { RadiationObservation } from '@/services/radiation';
 import { ArcLayer } from '@deck.gl/layers';
 import { HeatmapLayer } from '@deck.gl/aggregation-layers';
-import { H3HexagonLayer, GreatCircleLayer } from '@deck.gl/geo-layers';
+import { H3HexagonLayer } from '@deck.gl/geo-layers';
 import { PathStyleExtension } from '@deck.gl/extensions';
 import type { WeatherAlert } from '@/services/weather';
 import { escapeHtml } from '@/utils/sanitize';
@@ -2958,53 +2959,36 @@ export class DeckGLMap {
    * Color coded by destination: transatlantic(orange), UK(blue), Europe(green), planned(purple)
    */
   /**
-   * Create submarine cables layer using GreatCircleLayer (FR #176)
-   * Displays cables as curved arcs following Great Circle routes
-   * This is more accurate than straight lines for long-distance cables
+   * Create submarine cables layer using PathLayer with smooth Great Circle curves (FR #189)
+   * Generates smooth interpolated paths instead of segmented polylines
+   * Uses d3-geo interpolation for accurate Great Circle arcs
    */
-  private createSubmarineCablesLayer(): GreatCircleLayer<CableSegment> {
-    // Flatten cable paths into segments for GreatCircleLayer
-    // Each segment has source and target positions
-    const segments: CableSegment[] = [];
-    for (const cable of IRELAND_SUBMARINE_CABLES) {
-      const path = cable.path;
-      for (let i = 0; i < path.length - 1; i++) {
-        const source = path[i];
-        const target = path[i + 1];
-        if (source && target) {
-          segments.push({
-            cableId: cable.id,
-            source,
-            target,
-            destination: cable.destination,
-            status: cable.status,
-            cable, // Reference to original cable for popup
-          });
-        }
-      }
-    }
+  private createSubmarineCablesLayer(): PathLayer {
+    // Pre-generate smooth paths for each cable using Great Circle interpolation
+    // This creates a single continuous curve instead of segmented polylines
+    type CableWithPath = SubmarineCable & { smoothPath: [number, number][] };
+    const cablesWithSmoothPaths: CableWithPath[] = IRELAND_SUBMARINE_CABLES.map(cable => ({
+      ...cable,
+      smoothPath: generateSmoothGreatCirclePath(cable.path),
+    }));
 
-    return new GreatCircleLayer<CableSegment>({
+    return new PathLayer<CableWithPath>({
       id: 'submarine-cables-layer',
-      data: segments,
-      getSourcePosition: (d: CableSegment) => d.source,
-      getTargetPosition: (d: CableSegment) => d.target,
-      getSourceColor: (d: CableSegment) => {
+      data: cablesWithSmoothPaths,
+      // Use the pre-generated smooth path
+      getPath: (d) => d.smoothPath.map(([lng, lat]) => [lng, lat, 0] as [number, number, number]),
+      getColor: (d) => {
         const color = CABLE_COLORS[d.destination];
         const alpha = d.status === 'planned' || d.status === 'under-construction' ? 150 : 220;
         return [...color, alpha] as [number, number, number, number];
       },
-      getTargetColor: (d: CableSegment) => {
-        const color = CABLE_COLORS[d.destination];
-        const alpha = d.status === 'planned' || d.status === 'under-construction' ? 150 : 220;
-        return [...color, alpha] as [number, number, number, number];
-      },
-      getWidth: (d: CableSegment) => (d.status === 'active' ? 3 : 2),
+      getWidth: (d) => (d.status === 'active' ? 3 : 2),
       widthMinPixels: 2,
       widthMaxPixels: 6,
-      // Number of segments for smooth curve (more = smoother)
-      numSegments: 50,
       pickable: true,
+      // Smooth line caps and joints for better visual quality
+      capRounded: true,
+      jointRounded: true,
     });
   }
 
@@ -4253,10 +4237,7 @@ export class DeckGLMap {
       if (fullConflict) data = fullConflict;
     }
 
-    // For submarine cables, extract the original cable from CableSegment (FR #176)
-    if (popupType === 'submarineCable' && data.cable) {
-      data = data.cable;
-    }
+    // FR #189: SubmarineCable data is now used directly (no CableSegment extraction needed)
 
     // Enrich iran events with related events from same location
     if (popupType === 'iranEvent' && data.locationName) {
