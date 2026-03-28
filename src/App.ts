@@ -508,16 +508,32 @@ export class App {
     const initStart = performance.now();
     await initDB();
     await initI18n();
-    const aiFlow = getAiFlowSettings();
-    if (aiFlow.browserModel || isDesktopRuntime()) {
-      await mlWorker.init();
-      if (BETA_MODE) mlWorker.loadModel('summarization-beta').catch(() => { });
-    }
 
-    if (aiFlow.headlineMemory) {
-      mlWorker.init().then(ok => {
-        if (ok) mlWorker.loadModel('embeddings').catch(() => { });
-      }).catch(() => { });
+    // FR #202: Defer ML worker initialization to reduce blocking on first paint.
+    // ML is loaded lazily when user enables AI features or on next idle callback.
+    const aiFlow = getAiFlowSettings();
+    const shouldInitML = aiFlow.browserModel || isDesktopRuntime() || aiFlow.headlineMemory;
+    if (shouldInitML) {
+      // Use requestIdleCallback to load ML after critical path completes
+      const initML = () => {
+        mlWorker.init().then(ok => {
+          if (!ok) return;
+          if (BETA_MODE && (aiFlow.browserModel || isDesktopRuntime())) {
+            mlWorker.loadModel('summarization-beta').catch(() => { });
+          }
+          if (aiFlow.headlineMemory) {
+            mlWorker.loadModel('embeddings').catch(() => { });
+          }
+        }).catch(() => { });
+      };
+
+      if ('requestIdleCallback' in window) {
+        (window as Window & { requestIdleCallback: (cb: () => void, opts?: { timeout: number }) => void })
+          .requestIdleCallback(initML, { timeout: 5000 });
+      } else {
+        // Fallback: defer with setTimeout
+        setTimeout(initML, 1000);
+      }
     }
 
     this.unsubAiFlow = subscribeAiFlowChange((key) => {

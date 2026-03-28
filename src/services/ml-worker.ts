@@ -1,13 +1,17 @@
 /**
  * ML Worker Manager
  * Provides typed async interface to the ML Web Worker for ONNX inference
+ *
+ * FR #202: Lazy load ML worker to reduce initial bundle size.
+ * The worker (~1MB with ONNX + Transformers.js) is only loaded when first needed.
  */
 
 import { detectMLCapabilities, type MLCapabilities } from './ml-capabilities';
 import { ML_THRESHOLDS, MODEL_CONFIGS } from '@/config/ml-config';
 
-// Import worker using Vite's worker syntax
-import MLWorkerClass from '@/workers/ml.worker?worker';
+// FR #202: Worker is now lazily loaded via dynamic import
+// import MLWorkerClass from '@/workers/ml.worker?worker';
+type MLWorkerConstructor = new () => Worker;
 
 interface PendingRequest<T> {
   resolve: (value: T) => void;
@@ -82,10 +86,14 @@ class MLWorkerManager {
     return this.initWorker();
   }
 
-  private initWorker(): Promise<boolean> {
-    if (this.worker) return Promise.resolve(this.isReady);
+  /**
+   * FR #202: Lazily load and initialize the ML worker
+   * The worker module (~1MB) is only fetched when this method is called
+   */
+  private async initWorker(): Promise<boolean> {
+    if (this.worker) return this.isReady;
 
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       const readyTimeout = setTimeout(() => {
         if (!this.isReady) {
           console.error('[MLWorker] Worker failed to become ready');
@@ -95,9 +103,12 @@ class MLWorkerManager {
       }, MLWorkerManager.READY_TIMEOUT_MS);
 
       try {
+        // FR #202: Dynamic import - worker chunk is fetched only when needed
+        const { default: MLWorkerClass } = await import('@/workers/ml.worker?worker') as { default: MLWorkerConstructor };
         this.worker = new MLWorkerClass();
       } catch (error) {
         console.error('[MLWorker] Failed to create worker:', error);
+        clearTimeout(readyTimeout);
         this.cleanup();
         resolve(false);
         return;
