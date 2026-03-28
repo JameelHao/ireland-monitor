@@ -9,6 +9,7 @@ export const config = { runtime: 'edge' };
 
 // Domains that consistently block Vercel edge IPs — skip direct fetch,
 // go straight to Railway relay to avoid wasted invocation + timeout.
+// FR #195: Added Irish tech news sites that return 403 errors
 const RELAY_ONLY_DOMAINS = new Set([
   'rss.cnn.com',
   'www.defensenews.com',
@@ -28,12 +29,26 @@ const RELAY_ONLY_DOMAINS = new Set([
   'feeds.capi24.com',
   'islandtimes.org',
   'www.atlanticcouncil.org',
+  // FR #195: Irish tech news sites with aggressive anti-bot protection
+  'www.siliconrepublic.com',
+  'www.techcentral.ie',
+  'businessplus.ie',
 ]);
 
+// FR #195: Browser-like headers to avoid 403 errors from anti-bot protection
 const DIRECT_FETCH_HEADERS = Object.freeze({
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+  'Accept': 'application/rss+xml, application/xml, text/xml, application/atom+xml, */*',
   'Accept-Language': 'en-US,en;q=0.9',
+  'Accept-Encoding': 'gzip, deflate, br',
+  'Referer': 'https://www.google.com/',
+  'Cache-Control': 'no-cache',
+  'Pragma': 'no-cache',
+  'Sec-Fetch-Dest': 'document',
+  'Sec-Fetch-Mode': 'navigate',
+  'Sec-Fetch-Site': 'cross-site',
+  'Sec-Fetch-User': '?1',
+  'Upgrade-Insecure-Requests': '1',
 });
 
 async function fetchViaRailway(feedUrl, timeoutMs) {
