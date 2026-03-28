@@ -12,11 +12,14 @@ import { canQueueAiClassification, AI_CLASSIFY_MAX_PER_FEED } from './ai-classif
 import { mlWorker } from './ml-worker';
 import { isHeadlineMemoryEnabled } from './ai-flow-settings';
 
-const FEED_COOLDOWN_MS = 5 * 60 * 1000;
+// FR #195: Exponential backoff for retry logic
+// Initial: 1 min, then 2 min, 5 min, 10 min, max 30 min
+const INITIAL_COOLDOWN_MS = 1 * 60 * 1000;
+const MAX_COOLDOWN_MS = 30 * 60 * 1000;
 const MAX_FAILURES = 2;
 const MAX_CACHE_ENTRIES = 100;
 const FEED_SCOPE_SEPARATOR = '::';
-const feedFailures = new Map<string, { count: number; cooldownUntil: number }>();
+const feedFailures = new Map<string, { count: number; cooldownUntil: number; backoffMs: number }>();
 const feedCache = new Map<string, { items: NewsItem[]; timestamp: number }>();
 const CACHE_TTL = 30 * 60 * 1000;
 
@@ -97,13 +100,18 @@ function isFeedOnCooldown(feedScope: string): boolean {
   return false;
 }
 
+// FR #195: Exponential backoff - doubles cooldown on each failure
 function recordFeedFailure(feedScope: string): void {
-  const state = feedFailures.get(feedScope) || { count: 0, cooldownUntil: 0 };
+  const state = feedFailures.get(feedScope) || { count: 0, cooldownUntil: 0, backoffMs: INITIAL_COOLDOWN_MS };
   state.count++;
   if (state.count >= MAX_FAILURES) {
-    state.cooldownUntil = Date.now() + FEED_COOLDOWN_MS;
+    // Apply exponential backoff: 1min → 2min → 4min → 8min → 16min → 30min (capped)
+    state.cooldownUntil = Date.now() + state.backoffMs;
+    const cooldownMinutes = Math.round(state.backoffMs / 60000);
     const { feedName, lang } = parseFeedScope(feedScope);
-    console.warn(`[RSS] ${feedName} (${lang}) on cooldown for 5 minutes after ${state.count} failures`);
+    console.warn(`[RSS] ${feedName} (${lang}) on cooldown for ${cooldownMinutes} minutes after ${state.count} failures`);
+    // Double the backoff for next failure, capped at MAX_COOLDOWN_MS
+    state.backoffMs = Math.min(state.backoffMs * 2, MAX_COOLDOWN_MS);
   }
   feedFailures.set(feedScope, state);
 }
