@@ -26,7 +26,7 @@ import {
   type LandingStation,
   type SubmarineCable,
 } from '@/config/variants/ireland/data';
-import { generateSmoothGreatCirclePath } from '@/utils/geo-smooth-path';
+import { generateSmoothGreatCirclePath, getCableLODLevel, getCablePathWithLOD } from '@/utils/geo-smooth-path';
 import {
   getSemiconductorTier,
   getDataCenterTier,
@@ -2962,15 +2962,26 @@ export class DeckGLMap {
    * Create submarine cables layer using PathLayer with smooth Great Circle curves (FR #189)
    * Generates smooth interpolated paths instead of segmented polylines
    * Uses d3-geo interpolation for accurate Great Circle arcs
+   * FR #196: Added LOD (Level of Detail) for performance optimization
    */
   private createSubmarineCablesLayer(): PathLayer {
-    // Pre-generate smooth paths for each cable using Great Circle interpolation
-    // This creates a single continuous curve instead of segmented polylines
+    // FR #196: Get current zoom and determine LOD level
+    const zoom = this.maplibreMap?.getZoom() ?? 2;
+    const lodLevel = getCableLODLevel(zoom);
+
+    // Pre-generate smooth paths with LOD-based simplification
+    // Low zoom: fewer points for better performance
+    // High zoom: full detail for visual quality
     type CableWithPath = SubmarineCable & { smoothPath: [number, number][] };
-    const cablesWithSmoothPaths: CableWithPath[] = IRELAND_SUBMARINE_CABLES.map(cable => ({
-      ...cable,
-      smoothPath: generateSmoothGreatCirclePath(cable.path),
-    }));
+    const cablesWithSmoothPaths: CableWithPath[] = IRELAND_SUBMARINE_CABLES.map(cable => {
+      // Apply LOD simplification to the source waypoints
+      const lodPath = getCablePathWithLOD(cable.path, lodLevel);
+      // Generate smooth curve from the (potentially simplified) waypoints
+      return {
+        ...cable,
+        smoothPath: generateSmoothGreatCirclePath(lodPath),
+      };
+    });
 
     return new PathLayer<CableWithPath>({
       id: 'submarine-cables-layer',
@@ -2989,6 +3000,10 @@ export class DeckGLMap {
       // Smooth line caps and joints for better visual quality
       capRounded: true,
       jointRounded: true,
+      // FR #196: Update layer when zoom changes (LOD transition)
+      updateTriggers: {
+        getPath: [lodLevel],
+      },
     });
   }
 
