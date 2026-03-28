@@ -733,6 +733,26 @@ export default defineConfig({
               expiration: { maxEntries: 100, maxAgeSeconds: 7 * 24 * 60 * 60 },
             },
           },
+          // FR #204: Cache Mapbox tiles for repeat visitors
+          {
+            urlPattern: /^https:\/\/.*\.tiles\.mapbox\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'mapbox-tiles',
+              expiration: { maxEntries: 500, maxAgeSeconds: 7 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          // FR #204: Cache MapTiler tiles for repeat visitors
+          {
+            urlPattern: /^https:\/\/api\.maptiler\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'maptiler-tiles',
+              expiration: { maxEntries: 500, maxAgeSeconds: 7 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
         ],
       },
 
