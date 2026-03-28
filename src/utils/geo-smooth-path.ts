@@ -41,7 +41,7 @@ export function getCablePathWithLOD(
       // Only start and end points (2 points total)
       return [path[0]!, path[path.length - 1]!];
 
-    case 'reduced':
+    case 'reduced': {
       // Every 5th point + first and last (approximately 6-7 points for 30-point path)
       const reduced: [number, number][] = [path[0]!];
       for (let i = 5; i < path.length - 1; i += 5) {
@@ -49,8 +49,8 @@ export function getCablePathWithLOD(
       }
       reduced.push(path[path.length - 1]!);
       return reduced;
+    }
 
-    case 'full':
     default:
       return path;
   }
