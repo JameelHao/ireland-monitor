@@ -93,7 +93,17 @@ class MLWorkerManager {
   private async initWorker(): Promise<boolean> {
     if (this.worker) return this.isReady;
 
-    return new Promise(async (resolve) => {
+    // FR #202: Dynamic import - worker chunk is fetched only when needed
+    let MLWorkerClass: MLWorkerConstructor;
+    try {
+      const module = await import('@/workers/ml.worker?worker') as { default: MLWorkerConstructor };
+      MLWorkerClass = module.default;
+    } catch (error) {
+      console.error('[MLWorker] Failed to load worker module:', error);
+      return false;
+    }
+
+    return new Promise((resolve) => {
       const readyTimeout = setTimeout(() => {
         if (!this.isReady) {
           console.error('[MLWorker] Worker failed to become ready');
@@ -103,8 +113,6 @@ class MLWorkerManager {
       }, MLWorkerManager.READY_TIMEOUT_MS);
 
       try {
-        // FR #202: Dynamic import - worker chunk is fetched only when needed
-        const { default: MLWorkerClass } = await import('@/workers/ml.worker?worker') as { default: MLWorkerConstructor };
         this.worker = new MLWorkerClass();
       } catch (error) {
         console.error('[MLWorker] Failed to create worker:', error);
