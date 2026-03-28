@@ -167,15 +167,22 @@ async function handler(request) {
         return jsonResponse({ success: false, error: 'Language must be "en" or "zh"' }, { status: 400 });
       }
 
+      // FR #205: Cache headers for brief responses
+      // Briefs are updated daily, so cache for 10 min with 20 min stale-while-revalidate
+      const briefCacheHeaders = {
+        'Cache-Control': 'public, max-age=300, s-maxage=600, stale-while-revalidate=1200',
+        'CDN-Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200',
+      };
+
       // Get today's brief
       const today = reqUrl.searchParams.get('today');
       if (today === 'true') {
         const todayDate = new Date().toISOString().split('T')[0];
         const brief = await redisGet(keys.brief(todayDate, lang));
         if (!brief) {
-          return jsonResponse({ success: false, error: 'No brief available for today' }, { status: 404 });
+          return jsonResponse({ success: false, error: 'No brief available for today' }, 404);
         }
-        return jsonResponse({ success: true, brief });
+        return jsonResponse({ success: true, brief }, 200, briefCacheHeaders);
       }
 
       // Get latest brief
@@ -183,13 +190,13 @@ async function handler(request) {
       if (latest === 'true') {
         const latestDate = await redisCmd('get', keys.latest(lang));
         if (!latestDate) {
-          return jsonResponse({ success: false, error: 'No briefs available' }, { status: 404 });
+          return jsonResponse({ success: false, error: 'No briefs available' }, 404);
         }
         const brief = await redisGet(keys.brief(latestDate, lang));
         if (!brief) {
-          return jsonResponse({ success: false, error: 'Brief not found' }, { status: 404 });
+          return jsonResponse({ success: false, error: 'Brief not found' }, 404);
         }
-        return jsonResponse({ success: true, brief });
+        return jsonResponse({ success: true, brief }, 200, briefCacheHeaders);
       }
 
       // Get brief by date
@@ -197,13 +204,13 @@ async function handler(request) {
       if (date) {
         // Validate date format
         if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-          return jsonResponse({ success: false, error: 'Date must be YYYY-MM-DD' }, { status: 400 });
+          return jsonResponse({ success: false, error: 'Date must be YYYY-MM-DD' }, 400);
         }
         const brief = await redisGet(keys.brief(date, lang));
         if (!brief) {
-          return jsonResponse({ success: false, error: 'Brief not found for date' }, { status: 404 });
+          return jsonResponse({ success: false, error: 'Brief not found for date' }, 404);
         }
-        return jsonResponse({ success: true, brief });
+        return jsonResponse({ success: true, brief }, 200, briefCacheHeaders);
       }
 
       // Default: return latest
@@ -211,11 +218,11 @@ async function handler(request) {
       if (latestDate) {
         const brief = await redisGet(keys.brief(latestDate, lang));
         if (brief) {
-          return jsonResponse({ success: true, brief });
+          return jsonResponse({ success: true, brief }, 200, briefCacheHeaders);
         }
       }
 
-      return jsonResponse({ success: false, error: 'No briefs available' }, { status: 404 });
+      return jsonResponse({ success: false, error: 'No briefs available' }, 404);
     }
 
     return jsonResponse({ success: false, error: 'Method not allowed' }, { status: 405 });
