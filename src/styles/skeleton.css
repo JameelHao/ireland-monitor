@@ -123,3 +123,244 @@
     animation: none;
   }
 }
+
+/* ============================================================
+   FR #208: Enhanced Panel-Specific Skeletons
+   ============================================================ */
+
+/* ---------- News Panel Skeleton ---------- */
+.skeleton-news-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-headline {
+  height: 16px;
+  width: 95%;
+  background: var(--skeleton-bg, rgba(255, 255, 255, 0.08));
+  border-radius: 4px;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-bg, rgba(255, 255, 255, 0.08)) 25%,
+    var(--skeleton-highlight, rgba(255, 255, 255, 0.15)) 50%,
+    var(--skeleton-bg, rgba(255, 255, 255, 0.08)) 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* ---------- Market Panel Skeleton ---------- */
+.skeleton-market-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.skeleton-market-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 0 60px;
+}
+
+.skeleton-market-right {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  align-items: flex-end;
+}
+
+.skeleton-ticker {
+  height: 14px;
+  width: 48px;
+  background: var(--skeleton-bg, rgba(255, 255, 255, 0.08));
+  border-radius: 3px;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-bg, rgba(255, 255, 255, 0.08)) 25%,
+    var(--skeleton-highlight, rgba(255, 255, 255, 0.15)) 50%,
+    var(--skeleton-bg, rgba(255, 255, 255, 0.08)) 75%
+  );
+  background-size: 200% 100%;
+}
+
+.skeleton-symbol {
+  height: 10px;
+  width: 36px;
+  background: var(--skeleton-bg, rgba(255, 255, 255, 0.06));
+  border-radius: 2px;
+}
+
+.skeleton-price {
+  height: 16px;
+  width: 64px;
+  background: var(--skeleton-bg, rgba(255, 255, 255, 0.08));
+  border-radius: 3px;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-bg, rgba(255, 255, 255, 0.08)) 25%,
+    var(--skeleton-highlight, rgba(255, 255, 255, 0.15)) 50%,
+    var(--skeleton-bg, rgba(255, 255, 255, 0.08)) 75%
+  );
+  background-size: 200% 100%;
+}
+
+.skeleton-change {
+  height: 12px;
+  width: 40px;
+  background: var(--skeleton-bg, rgba(255, 255, 255, 0.06));
+  border-radius: 2px;
+}
+
+.skeleton-sparkline {
+  height: 24px;
+  width: 60px;
+  background: var(--skeleton-bg, rgba(255, 255, 255, 0.06));
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+/* ---------- Insights Panel Skeleton ---------- */
+.skeleton-insights {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-metrics {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-dim, rgba(255, 255, 255, 0.05));
+}
+
+.skeleton-metric {
+  flex: 1;
+  height: 48px;
+  background: var(--skeleton-bg, rgba(255, 255, 255, 0.06));
+  border-radius: 6px;
+}
+
+.skeleton-insight-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-insight-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skeleton-insight-icon {
+  width: 20px;
+  height: 20px;
+  background: var(--skeleton-bg, rgba(255, 255, 255, 0.08));
+  border-radius: 4px;
+}
+
+.skeleton-insight-title {
+  height: 14px;
+  width: 140px;
+  background: var(--skeleton-bg, rgba(255, 255, 255, 0.08));
+  border-radius: 3px;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-bg, rgba(255, 255, 255, 0.08)) 25%,
+    var(--skeleton-highlight, rgba(255, 255, 255, 0.15)) 50%,
+    var(--skeleton-bg, rgba(255, 255, 255, 0.08)) 75%
+  );
+  background-size: 200% 100%;
+}
+
+.skeleton-insight-summary {
+  height: 12px;
+  width: 100%;
+  background: var(--skeleton-bg, rgba(255, 255, 255, 0.06));
+  border-radius: 3px;
+}
+
+.skeleton-insight-summary.short {
+  width: 70%;
+}
+
+/* ---------- Chart Skeleton ---------- */
+.skeleton-chart {
+  position: relative;
+  height: var(--chart-height, 200px);
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-chart-area {
+  flex: 1;
+  background: var(--skeleton-bg, rgba(255, 255, 255, 0.04));
+  border-radius: 4px;
+  margin-left: 32px;
+  margin-bottom: 24px;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-bg, rgba(255, 255, 255, 0.04)) 25%,
+    var(--skeleton-highlight, rgba(255, 255, 255, 0.08)) 50%,
+    var(--skeleton-bg, rgba(255, 255, 255, 0.04)) 75%
+  );
+  background-size: 200% 100%;
+}
+
+.skeleton-chart-y-axis {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 24px;
+  width: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-right: 4px;
+}
+
+.skeleton-chart-x-axis {
+  position: absolute;
+  left: 32px;
+  right: 0;
+  bottom: 0;
+  height: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skeleton-axis-label {
+  width: 24px;
+  height: 8px;
+  background: var(--skeleton-bg, rgba(255, 255, 255, 0.06));
+  border-radius: 2px;
+}
+
+/* ---------- Light Theme for FR #208 Skeletons ---------- */
+[data-theme="light"] .skeleton-headline,
+[data-theme="light"] .skeleton-ticker,
+[data-theme="light"] .skeleton-price,
+[data-theme="light"] .skeleton-insight-title,
+[data-theme="light"] .skeleton-chart-area {
+  --skeleton-bg: rgba(0, 0, 0, 0.06);
+  --skeleton-highlight: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .skeleton-symbol,
+[data-theme="light"] .skeleton-change,
+[data-theme="light"] .skeleton-sparkline,
+[data-theme="light"] .skeleton-metric,
+[data-theme="light"] .skeleton-insight-icon,
+[data-theme="light"] .skeleton-insight-summary,
+[data-theme="light"] .skeleton-axis-label {
+  --skeleton-bg: rgba(0, 0, 0, 0.04);
+}
