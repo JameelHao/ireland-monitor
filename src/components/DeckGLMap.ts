@@ -15,18 +15,18 @@ import {
   IRISH_UNICORNS,
   IRELAND_AI_COMPANIES,
   IRELAND_UNIVERSITIES,
-  IRELAND_SUBMARINE_CABLES,
-  IRELAND_LANDING_STATIONS,
-  CABLE_COLORS,
   type IrelandDataCenter,
   type IrelandTechHQ,
   type IrishUnicorn,
   type IrelandAICompany,
   type IrelandUniversity,
-  type LandingStation,
-  type SubmarineCable,
 } from '@/config/variants/ireland/data';
-import { generateSmoothGreatCirclePath, getCableLODLevel, getCablePathWithLOD } from '@/utils/geo-smooth-path';
+// FR #207: Modular layer imports
+import {
+  createSubmarineCablesLayer,
+  createLandingStationsLayer,
+  createCloudRegionsLayer,
+} from './map/layers';
 import {
   getSemiconductorTier,
   getDataCenterTier,
@@ -1577,7 +1577,8 @@ export class DeckGLMap {
         layers.push(this.createAcceleratorsLayer());
       }
       if (mapLayers.cloudRegions) {
-        layers.push(this.createCloudRegionsLayer());
+        // FR #207: Use modular layer factory
+        layers.push(createCloudRegionsLayer(this.getVisibleCloudRegions()));
       }
       if (mapLayers.techEvents && this.techEvents.length > 0) {
         layers.push(...this.createTechEventClusterLayers());
@@ -1601,8 +1602,10 @@ export class DeckGLMap {
         layers.push(this.createIrelandUniversitiesLayer());
       }
       if (mapLayers.submarineCables) {
-        layers.push(this.createSubmarineCablesLayer());
-        layers.push(this.createLandingStationsLayer());
+        // FR #207: Use modular layer factories
+        const zoom = this.maplibreMap?.getZoom() ?? 2;
+        layers.push(createSubmarineCablesLayer(zoom));
+        layers.push(createLandingStationsLayer());
       }
     }
 
@@ -2965,92 +2968,8 @@ export class DeckGLMap {
    * Displays undersea cables connecting Ireland to the world
    * Color coded by destination: transatlantic(orange), UK(blue), Europe(green), planned(purple)
    */
-  /**
-   * Create submarine cables layer using PathLayer with smooth Great Circle curves (FR #189)
-   * Generates smooth interpolated paths instead of segmented polylines
-   * Uses d3-geo interpolation for accurate Great Circle arcs
-   * FR #196: Added LOD (Level of Detail) for performance optimization
-   */
-  private createSubmarineCablesLayer(): PathLayer {
-    // FR #196: Get current zoom and determine LOD level
-    const zoom = this.maplibreMap?.getZoom() ?? 2;
-    const lodLevel = getCableLODLevel(zoom);
-
-    // Pre-generate smooth paths with LOD-based simplification
-    // Low zoom: fewer points for better performance
-    // High zoom: full detail for visual quality
-    type CableWithPath = SubmarineCable & { smoothPath: [number, number][] };
-    const cablesWithSmoothPaths: CableWithPath[] = IRELAND_SUBMARINE_CABLES.map(cable => {
-      // Apply LOD simplification to the source waypoints
-      const lodPath = getCablePathWithLOD(cable.path, lodLevel);
-      // Generate smooth curve from the (potentially simplified) waypoints
-      return {
-        ...cable,
-        smoothPath: generateSmoothGreatCirclePath(lodPath),
-      };
-    });
-
-    return new PathLayer<CableWithPath>({
-      id: 'submarine-cables-layer',
-      data: cablesWithSmoothPaths,
-      // Use the pre-generated smooth path
-      getPath: (d) => d.smoothPath.map(([lng, lat]) => [lng, lat, 0] as [number, number, number]),
-      getColor: (d) => {
-        const color = CABLE_COLORS[d.destination];
-        const alpha = d.status === 'planned' || d.status === 'under-construction' ? 150 : 220;
-        return [...color, alpha] as [number, number, number, number];
-      },
-      getWidth: (d) => (d.status === 'active' ? 3 : 2),
-      widthMinPixels: 2,
-      widthMaxPixels: 6,
-      pickable: true,
-      // Smooth line caps and joints for better visual quality
-      capRounded: true,
-      jointRounded: true,
-      // FR #196: Update layer when zoom changes (LOD transition)
-      updateTriggers: {
-        getPath: [lodLevel],
-      },
-    });
-  }
-
-  /**
-   * Create landing stations layer using IconLayer (FR #174)
-   * Shows cable landing points in Ireland (Dublin, Galway, Cork)
-   * Uses red color to distinguish from data centers
-   */
-  private createLandingStationsLayer(): IconLayer<LandingStation> {
-    return new IconLayer<LandingStation>({
-      id: 'landing-stations-layer',
-      data: IRELAND_LANDING_STATIONS,
-      getPosition: (d) => [d.lng, d.lat],
-      getIcon: () => getMarkerIcon('circle', 1),
-      getSize: () => getMarkerSizeForTier(1, 'circle') * 1.2,
-      // Red color (#EF4444) for landing stations
-      getColor: () => [239, 68, 68, 255] as [number, number, number, number],
-      sizeScale: 1,
-      sizeMinPixels: 14,
-      sizeMaxPixels: 40,
-      pickable: true,
-    });
-  }
-
-  private createCloudRegionsLayer(): ScatterplotLayer {
-    const isIreland = isIrelandVariant();
-    return new ScatterplotLayer({
-      id: 'cloud-regions-layer',
-      data: this.getVisibleCloudRegions(),
-      getPosition: (d) => [d.lon, d.lat],
-      getRadius: isIreland ? 20000 : 12000,
-      getFillColor: isIreland ? [153, 102, 255, 235] : COLORS.cloudRegion,
-      radiusMinPixels: isIreland ? 9 : 4,
-      radiusMaxPixels: isIreland ? 18 : 12,
-      stroked: isIreland,
-      getLineColor: isIreland ? [255, 255, 255, 220] as [number, number, number, number] : [0, 0, 0, 0] as [number, number, number, number],
-      lineWidthMinPixels: isIreland ? 1.5 : 0,
-      pickable: true,
-    });
-  }
+  // FR #207: createSubmarineCablesLayer, createLandingStationsLayer, createCloudRegionsLayer
+  // moved to src/components/map/layers/ for better modularity
 
   private createIrelandTechFallbackLayer(mapLayers: MapLayers): ScatterplotLayer | null {
     if (SITE_VARIANT !== 'ireland') return null;
