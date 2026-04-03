@@ -141,8 +141,8 @@ export const FEEDS: Record<string, Feed[]> = {
       url: rss('https://news.google.com/rss/search?q=Intel+Ireland+when:7d&hl=en-IE&gl=IE&ceid=IE:en') 
     },
     { 
-      name: 'Silicon Republic - Semiconductors', 
-      url: rss('https://www.siliconrepublic.com/tag/semiconductors/feed') 
+      name: 'Silicon Republic - Semiconductors (Google News)', 
+      url: rss('https://news.google.com/rss/search?q=site:siliconrepublic.com+semiconductors+when:14d&hl=en-IE&gl=IE&ceid=IE:en') 
     },
     { 
       name: 'EU Chips Act Ireland', 
