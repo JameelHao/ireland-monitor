@@ -37,6 +37,11 @@ export const FEEDS: Record<string, Feed[]> = {
     { name: 'TheJournal.ie Tech (Google News)', url: rss('https://news.google.com/rss/search?q=site:thejournal.ie/tech+when:2d&hl=en-IE&gl=IE&ceid=IE:en') },
     { name: 'Business Post Tech (Google News)', url: rss('https://news.google.com/rss/search?q=site:businesspost.ie+technology+when:2d&hl=en-IE&gl=IE&ceid=IE:en') },
     { name: 'Irish Times Tech (Google News)', url: rss('https://news.google.com/rss/search?q=site:irishtimes.com+technology+when:2d&hl=en-IE&gl=IE&ceid=IE:en') },
+    // Additional Irish tech news sources (FR #220)
+    { name: 'TechCentral.ie (Google News)', url: rss('https://news.google.com/rss/search?q=site:techcentral.ie+(technology+OR+startup)+when:2d&hl=en-IE&gl=IE&ceid=IE:en') },
+    { name: 'TechBuzzIreland (Google News)', url: rss('https://news.google.com/rss/search?q=site:techbuzzireland.com+(technology+OR+tech+review)+when:2d&hl=en-IE&gl=IE&ceid=IE:en') },
+    { name: 'RTÉ Tech News (Google News)', url: rss('https://news.google.com/rss/search?q=site:rte.ie/news/technology+when:2d&hl=en-IE&gl=IE&ceid=IE:en') },
+    { name: 'Irish Tech News (Google News)', url: rss('https://news.google.com/rss/search?q=site:irishtechnews.ie+(technology+OR+startup)+when:2d&hl=en-IE&gl=IE&ceid=IE:en') },
     // AI Companies in Ireland (FR #178)
     { name: 'OpenAI Ireland', url: rss('https://news.google.com/rss/search?q=OpenAI+(Ireland+OR+Dublin)+when:14d&hl=en-IE&gl=IE&ceid=IE:en') },
     { name: 'Anthropic Ireland', url: rss('https://news.google.com/rss/search?q=Anthropic+(Ireland+OR+Dublin)+when:14d&hl=en-IE&gl=IE&ceid=IE:en') },
